@@ -1,0 +1,29 @@
+services:
+  elixir_radio:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - MIX_ENV=dev
+    depends_on:
+      - postgres
+    command: mix run --no-halt
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elixir_radio
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

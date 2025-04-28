@@ -1,0 +1,25 @@
+services:
+  elixir_radio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./data:/data
+    environment:
+      - MIX_ENV=prod
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elixir_radio
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
