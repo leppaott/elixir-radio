@@ -5,9 +5,10 @@ defmodule ElixirRadio.MixProject do
     [
       app: :elixir_radio,
       version: "0.1.0",
-      elixir: "~> 1.18",
+      elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      test_pattern: "*_test.exs"
     ]
   end
 
@@ -22,11 +23,14 @@ defmodule ElixirRadio.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:bandit, "~> 1.0"},
-      {:plug, "~> 1.14"},
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, "~> 0.20.0"},
-      {:jason, "~> 1.0"}
+      {:bandit, "~> 1.6"},
+      {:plug, "~> 1.17"},
+      {:ecto_sql, "~> 3.12"},
+      {:postgrex, "~> 0.20"},
+      {:jason, "~> 1.4"},
+      {:oban, "~> 2.20"},
+      {:lettuce, "~> 0.3", only: :dev},
+      {:testcontainers, "~> 1.10", only: :test}
     ]
   end
 end

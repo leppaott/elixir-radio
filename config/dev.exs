@@ -3,3 +3,8 @@ import Config
 config :elixir_radio, ElixirRadio.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
+
+# Lettuce hot-reload configuration
+config :lettuce,
+  paths: ["lib/"],
+  reload_on_save: true

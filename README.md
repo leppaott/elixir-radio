@@ -1,28 +1,144 @@
-# Elixir-radio
+# Elixir Radio - Genre-Based Vinyl Store Streaming Backend
 
-Implement audio streaming backend on Elixir using HLS audio.
+A high-performance audio streaming backend built with Elixir that serves HLS (HTTP Live Streaming) audio samples organized by genre. Perfect for vinyl record stores allowing customers to preview tracks before purchasing.
 
-## TODO
+## Features
 
-- actual file structure
-- fix hot-reloading / prod build
-- PG / segmentation support
+- 🎵 **HLS Audio Streaming** - Industry-standard adaptive streaming
+- 🎸 **Genre-Based Navigation** - Browse by genre (Electronic, Jazz, Rock, etc.)
+- 💾 **Database Segment Storage** - All segments stored in PostgreSQL
+- 📤 **Admin Upload API** - Upload audio files with automatic processing
+- ⚙️ **Background Job Processing** - Oban workers for async audio processing
+- 🔄 **Hot-Reloading** - Lettuce integration for instant code updates in Docker
+- 🐳 **Docker-First** - Complete development environment in Docker
+- 🎛️ **Configurable Samples** - 2-4 minute samples (configurable per track)
+- 🚀 **REST API** - Full-featured paginated API
 
-## File structure
-
-```console
-/data/
-├── 1/                  # Stream ID
-│   ├── segments/       # Directory for TS segments
-│   │   ├── segment0.ts
-│   │   ├── segment1.ts
-│   │   └── ...
-│   └── audio_pl.m3u8   # Manifest file
-```
-
-## Elixir help
+## Quick Start with Docker
 
 ```bash
-mix deps.get
-mix compile
+# Clone and enter directory
+cd elixir-radio
+
+# Start services
+docker compose up
+
+# In another terminal, setup database
+docker compose exec app mix ecto.create
+docker compose exec app mix ecto.migrate
+docker compose exec app mix run priv/repo/seeds.exs
+
+# Visit http://localhost:4000
 ```
+
+## API Endpoints
+
+### Genres
+- `GET /api/genres` - List all genres
+- `GET /api/genres/:id/albums?page=1&per_page=20` - Albums by genre (paginated)
+
+### Albums & Artists
+- `GET /api/albums/:id` - Get album with tracks
+- `GET /api/artists/:id/albums?page=1&per_page=20` - Albums by artist (paginated)
+
+### Tracks
+- `GET /api/tracks/:id` - Get track details
+
+### Streaming (Internet Radio Style)
+- `GET /streams/:genre?page=1&per_page=50` - Get streamable tracks by genre
+- `GET /streams/tracks/:track_id/playlist.m3u8` - HLS playlist
+- `GET /streams/tracks/:track_id/segments/:number.ts` - HLS segment
+
+### Admin
+- `POST /admin/tracks` - Create track
+- `POST /admin/tracks/:id/upload` - Upload audio file
+- `GET /admin/tracks/:id/status` - Check processing status
+
+## Workflow Example
+
+### Upload and Process a Track
+
+```bash
+# 1. Create track entry
+curl -X POST http://localhost:4000/admin/tracks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"New Song","album_id":1,"track_number":4,"sample_duration":120}'
+
+# 2. Upload audio file (max 50MB)
+curl -X POST http://localhost:4000/admin/tracks/1/upload \
+  -F "audio_file=@song.flac"
+
+# 3. Check status
+curl http://localhost:4000/admin/tracks/1/status
+
+# 4. Stream when ready
+curl http://localhost:4000/streams/tracks/1/playlist.m3u8
+```
+
+## Architecture
+
+### Storage
+- All segments stored in PostgreSQL as `bytea`
+- ~3.6 MB per track (120s sample with 10s segments)
+- Atomic operations, simplified deployment
+
+### Processing Flow
+1. Upload → stored in `uploads` table
+2. Oban job queued → `ProcessAudioJob`
+3. Worker processes with FFmpeg
+4. Segments stored in `segments` table
+5. Track status → "ready"
+
+## Development
+
+### Hot-Reload
+Edit files in `lib/` or `config/` - changes reload automatically!
+
+### Database Commands
+```bash
+docker compose exec app mix ecto.reset
+docker compose exec app mix ecto.migrate
+docker compose exec app mix run priv/repo/seeds.exs
+```
+
+### View Logs
+```bash
+docker compose logs -f app
+```
+
+## Configuration
+
+Sample duration (per track): 60-240 seconds (default: 120s)
+Upload limit: 50 MB
+Pagination: 20-50 items per page (configurable)
+
+## Project Structure
+
+```
+lib/elixir_radio/
+├── catalog/          # Schemas (Genre, Artist, Album, Track, Upload, Segment)
+├── workers/          # Oban background jobs
+├── application.ex    # App supervisor
+├── catalog.ex        # Business logic
+└── streaming_server.ex  # HTTP API
+
+priv/repo/
+├── migrations/       # Database schema
+└── seeds.exs         # Sample data
+
+config/
+├── config.exs        # Oban config
+└── dev.exs           # Lettuce hot-reload
+
+docker-compose.yml    # Services (app + postgres)
+Dockerfile.dev        # Dev container with FFmpeg
+```
+
+## See Also
+
+- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) - Detailed implementation guide
+- API documentation at http://localhost:4000 when running
+
+---
+
+Built with ❤️ using **Elixir** · **Oban** · **Lettuce** · **HLS**
