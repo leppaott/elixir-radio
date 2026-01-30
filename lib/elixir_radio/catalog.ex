@@ -101,6 +101,86 @@ defmodule ElixirRadio.Catalog do
     |> Repo.insert()
   end
 
+  @doc """
+  Creates an album with nested tracks in a single transaction.
+  Returns {:ok, album} with tracks preloaded, or {:error, changeset}.
+
+  ## Example
+      create_album_with_tracks(
+        %{title: "Album", artist_id: 1, genre_id: 1},
+        [%{title: "Track 1", track_number: 1}, %{title: "Track 2", track_number: 2}]
+      )
+  """
+  def create_album_with_tracks(album_attrs, tracks_attrs) when is_list(tracks_attrs) do
+    Repo.transaction(fn ->
+      with {:ok, album} <- create_album(album_attrs),
+           {:ok, tracks} <- create_tracks_for_album(album.id, tracks_attrs) do
+        %{album | tracks: tracks}
+      else
+        {:error, changeset} -> Repo.rollback(changeset)
+      end
+    end)
+  end
+
+  defp create_tracks_for_album(album_id, tracks_attrs) do
+    tracks =
+      Enum.map(tracks_attrs, fn track_attrs ->
+        track_attrs
+        |> Map.put("album_id", album_id)
+        |> then(&Track.changeset(%Track{}, &1))
+      end)
+
+    case Enum.find(tracks, fn cs -> not cs.valid? end) do
+      nil ->
+        tracks = Enum.map(tracks, &Repo.insert!/1)
+        {:ok, tracks}
+
+      invalid_changeset ->
+        {:error, invalid_changeset}
+    end
+  end
+
+  @doc """
+  Gets album status with all tracks and their upload/processing status.
+  """
+  def get_album_status(album_id) do
+    case Repo.get(Album, album_id) do
+      nil ->
+        {:error, :not_found}
+
+      album ->
+        album = Repo.preload(album, [:artist, :genre, tracks: [:upload, :segment]])
+
+        status_data = %{
+          album_id: album.id,
+          title: album.title,
+          artist: album.artist.name,
+          genre: album.genre.name,
+          tracks:
+            Enum.map(album.tracks, fn track ->
+              %{
+                id: track.id,
+                title: track.title,
+                track_number: track.track_number,
+                upload_status: track.upload_status,
+                has_upload: track.upload != nil,
+                processing_status:
+                  if(track.segment, do: track.segment.processing_status, else: nil),
+                upload_url: "/admin/tracks/#{track.id}/upload"
+              }
+            end)
+            |> Enum.sort_by(& &1.track_number),
+          complete: Enum.all?(album.tracks, &(&1.upload_status == "ready")),
+          ready_count: Enum.count(album.tracks, &(&1.upload_status == "ready")),
+          processing_count: Enum.count(album.tracks, &(&1.upload_status == "processing")),
+          pending_count: Enum.count(album.tracks, &(&1.upload_status == "pending")),
+          total_count: length(album.tracks)
+        }
+
+        {:ok, status_data}
+    end
+  end
+
   # Tracks
 
   def get_track!(id) do

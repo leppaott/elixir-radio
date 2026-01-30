@@ -4,7 +4,7 @@ defmodule ElixirRadio.Factory do
   """
 
   alias ElixirRadio.Repo
-  alias ElixirRadio.Catalog.{Genre, Artist, Album, Track}
+  alias ElixirRadio.Catalog.{Genre, Artist, Album, Track, Segment}
 
   def build(:genre) do
     %Genre{
@@ -38,6 +38,14 @@ defmodule ElixirRadio.Factory do
       duration_seconds: 180,
       sample_duration: 120,
       upload_status: "pending"
+    }
+  end
+
+  def build(:segment) do
+    %Segment{
+      playlist_data: "#EXTM3U\n#EXT-X-VERSION:3\n",
+      segment_files: %{},
+      processing_status: "pending"
     }
   end
 

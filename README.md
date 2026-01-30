@@ -50,29 +50,59 @@ docker compose exec app mix run priv/repo/seeds.exs
 - `GET /streams/tracks/:track_id/segments/:number.ts` - HLS segment
 
 ### Admin
+- `POST /admin/albums` - Create album with tracks (metadata only)
+- `GET /admin/albums/:id/status` - Check album upload progress
 - `POST /admin/tracks` - Create track
 - `POST /admin/tracks/:id/upload` - Upload audio file
 - `GET /admin/tracks/:id/status` - Check processing status
 
 ## Workflow Example
 
-### Upload and Process a Track
+### Upload and Process an Album
 
 ```bash
-# 1. Create track entry
-curl -X POST http://localhost:4000/admin/tracks \
+# 1. Create album with tracks (metadata only - one call)
+curl -X POST http://localhost:4000/admin/albums \
   -H "Content-Type: application/json" \
-  -d '{"title":"New Song","album_id":1,"track_number":4,"sample_duration":120}'
+  -d '{
+    "title": "My Album",
+    "artist_id": 1,
+    "genre_id": 1,
+    "release_year": 2024,
+    "tracks": [
+      {"title": "Song 1", "track_number": 1, "sample_duration": 120},
+      {"title": "Song 2", "track_number": 2, "sample_duration": 90}
+    ]
+  }'
 
-# 2. Upload audio file (max 50MB)
-curl -X POST http://localhost:4000/admin/tracks/1/upload \
-  -F "audio_file=@song.flac"
+# Response: {"album_id": 5, "tracks": [{"id": 12, "upload_url": "/admin/tracks/12/upload"}, ...]}
 
-# 3. Check status
-curl http://localhost:4000/admin/tracks/1/status
+# 2. Upload audio files (can be done in parallel)
+curl -X POST http://localhost:4000/admin/tracks/12/upload \
+  -F "audio_file=@song1.flac"
+
+curl -X POST http://localhost:4000/admin/tracks/13/upload \
+  -F "audio_file=@song2.mp3"
+
+# 3. Check album status (shows progress for all tracks)
+curl http://localhost:4000/admin/albums/5/status
+
+# Response shows: ready_count, processing_count, pending_count, complete: true/false
 
 # 4. Stream when ready
-curl http://localhost:4000/streams/tracks/1/playlist.m3u8
+curl http://localhost:4000/streams/tracks/12/playlist.m3u8
+```
+
+### Upload Individual Track (Alternative)
+
+```bash
+# For adding tracks to existing album
+curl -X POST http://localhost:4000/admin/tracks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Bonus Track","album_id":1,"track_number":10,"sample_duration":120}'
+
+curl -X POST http://localhost:4000/admin/tracks/14/upload \
+  -F "audio_file=@bonus.flac"
 ```
 
 ## Architecture

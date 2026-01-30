@@ -274,6 +274,52 @@ defmodule ElixirRadio.StreamingServer do
 
   # === Admin Endpoints ===
 
+  post "/admin/albums" do
+    album_attrs =
+      Map.take(conn.body_params, [
+        "title",
+        "artist_id",
+        "genre_id",
+        "release_year",
+        "cover_image_url",
+        "description"
+      ])
+
+    tracks_attrs = Map.get(conn.body_params, "tracks", [])
+
+    case Catalog.create_album_with_tracks(album_attrs, tracks_attrs) do
+      {:ok, album} ->
+        response = %{
+          album_id: album.id,
+          title: album.title,
+          tracks:
+            Enum.map(album.tracks, fn track ->
+              %{
+                id: track.id,
+                title: track.title,
+                track_number: track.track_number,
+                upload_url: "/admin/tracks/#{track.id}/upload"
+              }
+            end)
+        }
+
+        send_json(conn, 201, response)
+
+      {:error, changeset} ->
+        send_json(conn, 400, %{errors: format_errors(changeset)})
+    end
+  end
+
+  get "/admin/albums/:id/status" do
+    case Catalog.get_album_status(id) do
+      {:ok, status} ->
+        send_json(conn, 200, status)
+
+      {:error, :not_found} ->
+        send_json(conn, 404, %{error: "Album not found"})
+    end
+  end
+
   post "/admin/tracks" do
     case Catalog.create_track(conn.body_params) do
       {:ok, track} ->
