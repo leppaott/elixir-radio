@@ -1,4 +1,4 @@
-# Implementation Plan - Vinyl Store Streaming Backend v2
+# Implementation Plan - Record Store Streaming Backend v2
 
 ## Overview
 Transform the backend into a genre-based internet radio platform with admin upload capabilities, hot-reloading, and Docker-first development.

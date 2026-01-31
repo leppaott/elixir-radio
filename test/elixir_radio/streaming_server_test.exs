@@ -8,7 +8,8 @@ defmodule ElixirRadio.StreamingServerTest do
       conn = ElixirRadio.StreamingServer.call(conn, [])
 
       assert conn.status == 200
-      assert Jason.decode!(conn.resp_body) == %{"genres" => []}
+      body = Jason.decode!(conn.resp_body)
+      assert body["genres"] == []
     end
 
     test "returns all genres", %{conn: _conn} do

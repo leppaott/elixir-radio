@@ -3,6 +3,7 @@ defmodule ElixirRadio.StreamingServer do
 
   alias ElixirRadio.Catalog
   alias ElixirRadio.Catalog.Segment
+  alias ElixirRadio.StaticHeaders
   alias ElixirRadio.Workers.ProcessAudioJob
 
   require Logger
@@ -20,40 +21,21 @@ defmodule ElixirRadio.StreamingServer do
   plug(:match)
   plug(:dispatch)
 
-  # Root endpoint
+  # Root endpoint - serve public/index.html if present
   get "/" do
-    conn
-    |> put_resp_content_type("text/html")
-    |> send_resp(200, """
-    <h1>🎵 Elixir Radio - Vinyl Store Streaming</h1>
-    <h2>API Endpoints:</h2>
-    <h3>Genres</h3>
-    <ul>
-      <li>GET /api/genres - List all genres</li>
-      <li>GET /api/genres/:id/albums?page=1&per_page=20 - Albums by genre</li>
-    </ul>
-    <h3>Albums & Artists</h3>
-    <ul>
-      <li>GET /api/albums/:id - Get album with tracks</li>
-      <li>GET /api/artists/:id/albums?page=1&per_page=20 - Albums by artist</li>
-    </ul>
-    <h3>Tracks</h3>
-    <ul>
-      <li>GET /api/tracks/:id - Get track details</li>
-    </ul>
-    <h3>Streaming</h3>
-    <ul>
-      <li>GET /streams/:genre?page=1&per_page=50 - Get streamable tracks by genre</li>
-      <li>GET /streams/tracks/:track_id/playlist.m3u8 - HLS playlist</li>
-      <li>GET /streams/tracks/:track_id/segments/:number.ts - HLS segment</li>
-    </ul>
-    <h3>Admin</h3>
-    <ul>
-      <li>POST /admin/tracks - Create track</li>
-      <li>POST /admin/tracks/:id/upload - Upload audio file</li>
-      <li>GET /admin/tracks/:id/status - Check processing status</li>
-    </ul>
-    """)
+    index_path = Path.join(:code.priv_dir(:elixir_radio) |> to_string(), "../public/index.html")
+
+    case File.read(index_path) do
+      {:ok, body} ->
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(200, body)
+
+      {:error, _reason} ->
+        conn
+        |> put_resp_content_type("text/plain")
+        |> send_resp(500, "Index file not found")
+    end
   end
 
   # Health check
@@ -64,8 +46,73 @@ defmodule ElixirRadio.StreamingServer do
   # === Genre Endpoints ===
 
   get "/api/genres" do
-    genres = Catalog.list_genres()
-    send_json(conn, 200, %{genres: genres})
+    page = String.to_integer(conn.params["page"] || "1")
+    per_page = String.to_integer(conn.params["per_page"] || "20")
+
+    result = Catalog.list_genres(page: page, per_page: per_page)
+
+    send_json(conn, 200, %{
+      genres: result.items,
+      pagination: %{
+        page: result.page,
+        per_page: result.per_page,
+        total_pages: result.total_pages,
+        total_count: result.total_count
+      }
+    })
+  end
+
+  get "/api/albums" do
+    page = String.to_integer(conn.params["page"] || "1")
+    per_page = String.to_integer(conn.params["per_page"] || "20")
+
+    result = Catalog.list_albums(page: page, per_page: per_page)
+
+    albums =
+      Enum.map(result.items, fn album ->
+        # album here is the Ecto struct with preloaded :tracks
+        tracks =
+          (album.tracks || [])
+          |> Enum.map(fn track ->
+            segment = Catalog.get_segment_by_track(track.id)
+
+            stream_id =
+              if (track.upload_status == "ready" and segment) &&
+                   segment.processing_status == "completed", do: track.id, else: nil
+
+            %{
+              id: track.id,
+              title: track.title,
+              track_number: track.track_number,
+              duration_seconds: track.duration_seconds,
+              upload_status: track.upload_status,
+              stream_id: stream_id
+            }
+          end)
+
+        %{
+          id: album.id,
+          title: album.title,
+          release_year: album.release_year,
+          cover_image_url: album.cover_image_url,
+          description: album.description,
+          artist: %{
+            id: album.artist.id,
+            name: album.artist.name
+          },
+          tracks: tracks
+        }
+      end)
+
+    send_json(conn, 200, %{
+      albums: albums,
+      pagination: %{
+        page: result.page,
+        per_page: result.per_page,
+        total_pages: result.total_pages,
+        total_count: result.total_count
+      }
+    })
   end
 
   get "/api/genres/:id/albums" do
@@ -184,6 +231,17 @@ defmodule ElixirRadio.StreamingServer do
         updated_at: track.updated_at
       }
 
+      # Add stream_url when segments are ready
+      segment = Catalog.get_segment_by_track(id)
+
+      response =
+        if (track.upload_status == "ready" and segment) &&
+             segment.processing_status == "completed" do
+          Map.put(response, :stream_url, "/streams/tracks/#{track.id}/playlist.m3u8")
+        else
+          response
+        end
+
       send_json(conn, 200, response)
     rescue
       Ecto.NoResultsError ->
@@ -236,15 +294,18 @@ defmodule ElixirRadio.StreamingServer do
     case Catalog.get_segment_by_track(track_id) do
       %Segment{playlist_data: playlist_data, processing_status: "completed"} ->
         conn
-        |> put_resp_content_type("application/vnd.apple.mpegurl")
-        |> put_resp_header("access-control-allow-origin", "*")
+        |> StaticHeaders.apply()
         |> send_resp(200, playlist_data)
 
       %Segment{processing_status: status} ->
-        send_json(conn, 503, %{error: "Track is #{status}"})
+        conn
+        |> StaticHeaders.apply()
+        |> send_json(503, %{error: "Track is #{status}"})
 
       nil ->
-        send_json(conn, 404, %{error: "Playlist not found"})
+        conn
+        |> StaticHeaders.apply()
+        |> send_json(404, %{error: "Playlist not found"})
     end
   end
 
@@ -255,20 +316,23 @@ defmodule ElixirRadio.StreamingServer do
       %Segment{segment_files: files, processing_status: "completed"} ->
         case Map.get(files, segment_num) do
           nil ->
-            send_json(conn, 404, %{error: "Segment not found"})
+            conn
+            |> StaticHeaders.apply()
+            |> send_json(404, %{error: "Segment not found"})
 
           base64_segment_data ->
             # Decode base64-encoded segment data
             segment_data = Base.decode64!(base64_segment_data)
 
             conn
-            |> put_resp_content_type("video/mp2t")
-            |> put_resp_header("access-control-allow-origin", "*")
+            |> StaticHeaders.apply()
             |> send_resp(200, segment_data)
         end
 
       _ ->
-        send_json(conn, 404, %{error: "Segments not found"})
+        conn
+        |> StaticHeaders.apply()
+        |> send_json(404, %{error: "Segments not found"})
     end
   end
 
@@ -404,8 +468,6 @@ defmodule ElixirRadio.StreamingServer do
             %{track_id: track_id}
             |> ProcessAudioJob.new()
             |> Oban.insert()
-
-          require Logger
 
           case job_result do
             {:ok, job} ->

@@ -9,7 +9,8 @@ defmodule ElixirRadio.CatalogTest do
       genre1 = insert!(:genre, name: "Electronic")
       genre2 = insert!(:genre, name: "Jazz")
 
-      genres = Catalog.list_genres()
+      result = Catalog.list_genres()
+      genres = result.items
 
       assert length(genres) == 2
       assert Enum.any?(genres, &(&1.id == genre1.id))

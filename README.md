@@ -1,6 +1,6 @@
-# Elixir Radio - Genre-Based Vinyl Store Streaming Backend
+# Elixir Radio - Genre-Based Record Store Streaming Backend
 
-A high-performance audio streaming backend built with Elixir that serves HLS (HTTP Live Streaming) audio samples organized by genre. Perfect for vinyl record stores allowing customers to preview tracks before purchasing.
+A high-performance audio streaming backend built with Elixir that serves HLS (HTTP Live Streaming) audio samples organized by genre. Perfect for record stores allowing customers to preview tracks before purchasing.
 
 ## Features
 
@@ -35,11 +35,12 @@ docker compose exec app mix run priv/repo/seeds.exs
 
 ### Genres
 
-- `GET /api/genres` - List all genres
+- `GET /api/genres?page=1&per_page=20` - List genres (paginated)
 - `GET /api/genres/:id/albums?page=1&per_page=20` - Albums by genre (paginated)
 
 ### Albums & Artists
 
+- `GET /api/albums?page=1&per_page=20` - List albums (paginated)
 - `GET /api/albums/:id` - Get album with tracks
 - `GET /api/artists/:id/albums?page=1&per_page=20` - Albums by artist (paginated)
 
@@ -141,11 +142,11 @@ docker compose exec app mix run priv/repo/seeds.exs
 docker compose logs -f app
 ```
 
-## Configuration
+### Configuration
 
 Sample duration (per track): 60-240 seconds (default: 120s)
 Upload limit: 50 MB
-Pagination: 20-50 items per page (configurable)
+Pagination: 20-50 items per page (configurable). Use `page` and `per_page` query parameters on list endpoints, for example `?page=1&per_page=20`.
 
 ## Project Structure
 

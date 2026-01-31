@@ -5,6 +5,11 @@ defmodule ElixirRadio.StaticHeaders do
     cors_headers() ++ content_type_headers(filename)
   end
 
+  def apply(conn) do
+    headers(conn)
+    |> Enum.reduce(conn, fn {k, v}, acc -> Plug.Conn.put_resp_header(acc, k, v) end)
+  end
+
   defp cors_headers do
     [
       {"access-control-allow-origin", "*"},

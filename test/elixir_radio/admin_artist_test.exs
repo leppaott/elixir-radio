@@ -1,8 +1,6 @@
 defmodule ElixirRadio.AdminArtistTest do
   use ElixirRadio.ConnCase, async: false
 
-  import ElixirRadio.Factory
-  alias ElixirRadio.Repo
   alias ElixirRadio.Catalog
 
   describe "POST /admin/artists - create artist" do

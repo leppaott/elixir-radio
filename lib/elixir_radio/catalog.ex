@@ -9,8 +9,15 @@ defmodule ElixirRadio.Catalog do
 
   # Genres
 
-  def list_genres do
-    Repo.all(Genre)
+  def list_genres(opts \\ []) do
+    page = Keyword.get(opts, :page, 1)
+    per_page = Keyword.get(opts, :per_page, 20)
+
+    query =
+      Genre
+      |> order_by([g], asc: g.name)
+
+    paginate(query, page, per_page)
   end
 
   def get_genre!(id), do: Repo.get!(Genre, id)
@@ -70,6 +77,18 @@ defmodule ElixirRadio.Catalog do
     query =
       Album
       |> where([a], a.genre_id == ^genre_id)
+      |> preload([:artist, :tracks, :genre])
+      |> order_by([a], desc: a.inserted_at)
+
+    paginate(query, page, per_page)
+  end
+
+  def list_albums(opts \\ []) do
+    page = Keyword.get(opts, :page, 1)
+    per_page = Keyword.get(opts, :per_page, 20)
+
+    query =
+      Album
       |> preload([:artist, :tracks, :genre])
       |> order_by([a], desc: a.inserted_at)
 
