@@ -217,7 +217,7 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: elixir_radio_dev
+      POSTGRES_DB: elixir_radio
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -232,7 +232,7 @@ services:
     ports:
       - "4000:4000"
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/elixir_radio_dev
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/elixir_radio
       MIX_ENV: dev
     volumes:
       - ./lib:/app/lib           # Hot-reload source
@@ -385,7 +385,7 @@ genres/
 ## Environment Variables
 
 ```bash
-DATABASE_URL=postgres://postgres:postgres@postgres:5432/elixir_radio_dev
+DATABASE_URL=postgres://postgres:postgres@postgres:5432/elixir_radio
 MIX_ENV=dev
 PORT=4000
 SEGMENT_STORAGE=database  # or "filesystem" for fallback

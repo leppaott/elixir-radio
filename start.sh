@@ -35,7 +35,7 @@ docker compose run --rm app mix ecto.migrate
 
 # Seed data (only if DB is empty)
 echo "🌱 Checking if database needs seeding..."
-GENRE_COUNT=$(docker compose exec -T postgres psql -U postgres -d elixir_radio_dev -t -c "SELECT COUNT(*) FROM genres;" 2>/dev/null | xargs || echo "0")
+GENRE_COUNT=$(docker compose exec -T postgres psql -U postgres -d elixir_radio -t -c "SELECT COUNT(*) FROM genres;" 2>/dev/null | xargs || echo "0")
 
 if [ "$GENRE_COUNT" -eq "0" ]; then
   echo "📝 Seeding sample data..."
@@ -76,7 +76,7 @@ echo "  # Run tests:"
 echo "  docker compose exec app mix test"
 echo ""
 echo "  # Access database:"
-echo "  docker compose exec postgres psql -U postgres -d elixir_radio_dev"
+echo "  docker compose exec postgres psql -U postgres -d elixir_radio"
 echo ""
 echo "  # Restart app:"
 echo "  docker compose restart app"

@@ -1,10 +1,10 @@
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: elixir_radio_dev
+      POSTGRES_DB: elixir_radio
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -17,25 +17,23 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ./backend
+      dockerfile: ../Dockerfile.dev
     ports:
       - "4000:4000"
     environment:
       MIX_ENV: dev
-      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/elixir_radio_dev"
+      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/elixir_radio"
     volumes:
       # Hot-reload source code
-      - ./lib:/app/lib
-      - ./config:/app/config
-      - ./priv:/app/priv
-      - ./public:/app/public
-      - ./mix.exs:/app/mix.exs
+      - ./backend/lib:/app/lib
+      - ./backend/config:/app/config
+      - ./backend/priv:/app/priv
+      - ./backend/public:/app/public
+      - ./backend/mix.exs:/app/mix.exs
       # Cache build artifacts and dependencies
       - build_cache:/app/_build
       - deps_cache:/app/deps
-      # Data directory for segments (if using filesystem fallback)
-      - ./data:/data
     depends_on:
       postgres:
         condition: service_healthy

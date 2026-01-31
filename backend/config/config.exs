@@ -1,7 +1,7 @@
 import Config
 
 config :elixir_radio, ElixirRadio.Repo,
-  database: "elixir_radio_dev",
+  database: "elixir_radio",
   username: "postgres",
   password: "postgres",
   hostname: "postgres"
