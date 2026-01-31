@@ -11,6 +11,9 @@ defmodule ElixirRadio.StreamingServer do
 
   plug(Plug.Logger)
 
+  # CORS for development
+  plug(:cors)
+
   # Parse multipart form data for uploads
   plug(Plug.Parsers,
     parsers: [:json, :multipart],
@@ -21,23 +24,6 @@ defmodule ElixirRadio.StreamingServer do
 
   plug(:match)
   plug(:dispatch)
-
-  # Root endpoint - serve public/index.html if present
-  get "/" do
-    index_path = Path.join(:code.priv_dir(:elixir_radio) |> to_string(), "../public/index.html")
-
-    case File.read(index_path) do
-      {:ok, body} ->
-        conn
-        |> put_resp_content_type("text/html")
-        |> send_resp(200, body)
-
-      {:error, _reason} ->
-        conn
-        |> put_resp_content_type("text/plain")
-        |> send_resp(500, "Index file not found")
-    end
-  end
 
   # Health check
   get "/health" do
@@ -77,13 +63,17 @@ defmodule ElixirRadio.StreamingServer do
     per_page = String.to_integer(conn.params["per_page"] || "20")
     sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
     sort_order = String.to_existing_atom(conn.params["sort_order"] || "desc")
+    genre_id = conn.params["genre"] && String.to_integer(conn.params["genre"])
+    artist_id = conn.params["artist"] && String.to_integer(conn.params["artist"])
 
     result =
       Catalog.list_albums(
         after_id: after_id,
         per_page: per_page,
         sort_by: sort_by,
-        sort_order: sort_order
+        sort_order: sort_order,
+        genre_id: genre_id,
+        artist_id: artist_id
       )
 
     albums =
@@ -126,37 +116,6 @@ defmodule ElixirRadio.StreamingServer do
     })
   end
 
-  get "/api/genres/:id/albums" do
-    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
-    per_page = String.to_integer(conn.params["per_page"] || "20")
-    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
-    sort_order = String.to_existing_atom(conn.params["sort_order"] || "desc")
-
-    try do
-      result =
-        Catalog.list_albums_by_genre(id,
-          after_id: after_id,
-          per_page: per_page,
-          sort_by: sort_by,
-          sort_order: sort_order
-        )
-
-      send_json(conn, 200, %{
-        albums: result.items,
-        pagination: %{
-          per_page: result.per_page,
-          has_more: result.has_more,
-          next_cursor: result.next_cursor,
-          sort_by: result.sort_by,
-          sort_order: result.sort_order
-        }
-      })
-    rescue
-      Ecto.NoResultsError ->
-        send_json(conn, 404, %{error: "Genre not found"})
-    end
-  end
-
   # === Album Endpoints ===
 
   get "/api/albums/:id" do
@@ -193,42 +152,6 @@ defmodule ElixirRadio.StreamingServer do
     rescue
       Ecto.NoResultsError ->
         send_json(conn, 404, %{error: "Album not found"})
-    end
-  end
-
-  # === Artist Endpoints ===
-
-  get "/api/artists/:id/albums" do
-    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
-    per_page = String.to_integer(conn.params["per_page"] || "20")
-    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
-    sort_order = String.to_existing_atom(conn.params["sort_order"] || "desc")
-
-    try do
-      artist = Catalog.get_artist!(id)
-
-      result =
-        Catalog.list_albums_by_artist(id,
-          after_id: after_id,
-          per_page: per_page,
-          sort_by: sort_by,
-          sort_order: sort_order
-        )
-
-      send_json(conn, 200, %{
-        artist: artist,
-        albums: result.items,
-        pagination: %{
-          per_page: result.per_page,
-          has_more: result.has_more,
-          next_cursor: result.next_cursor,
-          sort_by: result.sort_by,
-          sort_order: result.sort_order
-        }
-      })
-    rescue
-      Ecto.NoResultsError ->
-        send_json(conn, 404, %{error: "Artist not found"})
     end
   end
 
@@ -566,5 +489,13 @@ defmodule ElixirRadio.StreamingServer do
   # Catch-all
   match _ do
     send_json(conn, 404, %{error: "Not found"})
+  end
+
+  # CORS helper
+  defp cors(conn, _opts) do
+    conn
+    |> put_resp_header("access-control-allow-origin", "*")
+    |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS")
+    |> put_resp_header("access-control-allow-headers", "content-type, authorization")
   end
 end

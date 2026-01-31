@@ -118,7 +118,7 @@ defmodule ElixirRadio.CatalogTest do
       assert album.release_year == 2024
     end
 
-    test "list_albums_by_genre/2 returns paginated albums for genre with cursor" do
+    test "list_albums/1 with genre_id returns paginated albums for genre with cursor" do
       genre = insert!(:genre)
       other_genre = insert!(:genre)
       artist = insert!(:artist)
@@ -128,7 +128,8 @@ defmodule ElixirRadio.CatalogTest do
       _album3 = insert!(:album, %{artist_id: artist.id, genre_id: other_genre.id})
 
       # First page
-      result = Catalog.list_albums_by_genre(genre.id, per_page: 1, sort_by: :id, sort_order: :asc)
+      result =
+        Catalog.list_albums(genre_id: genre.id, per_page: 1, sort_by: :id, sort_order: :asc)
 
       assert result.per_page == 1
       assert length(result.items) == 1
@@ -137,7 +138,8 @@ defmodule ElixirRadio.CatalogTest do
 
       # Second page using cursor
       result2 =
-        Catalog.list_albums_by_genre(genre.id,
+        Catalog.list_albums(
+          genre_id: genre.id,
           after_id: result.next_cursor,
           per_page: 1,
           sort_by: :id,

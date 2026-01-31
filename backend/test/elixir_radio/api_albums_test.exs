@@ -75,5 +75,105 @@ defmodule ElixirRadio.ApiAlbumsTest do
       # stream_id is no longer included in album listings
       refute Map.has_key?(track_response, "stream_id")
     end
+
+    test "filters albums by genre when genre query parameter is provided", %{conn: _conn} do
+      genre1 = insert!(:genre, name: "Electronic")
+      genre2 = insert!(:genre, name: "Jazz")
+      artist = insert!(:artist)
+
+      album1 =
+        insert!(:album, %{
+          title: "Electronic Album",
+          artist_id: artist.id,
+          genre_id: genre1.id
+        })
+
+      _album2 =
+        insert!(:album, %{
+          title: "Jazz Album",
+          artist_id: artist.id,
+          genre_id: genre2.id
+        })
+
+      conn = Plug.Test.conn(:get, "/api/albums?genre=#{genre1.id}")
+      conn = ElixirRadio.StreamingServer.call(conn, [])
+
+      assert conn.status == 200
+      body = Jason.decode!(conn.resp_body)
+      assert is_list(body["albums"])
+      assert length(body["albums"]) == 1
+      assert Enum.at(body["albums"], 0)["id"] == album1.id
+      assert Enum.at(body["albums"], 0)["title"] == "Electronic Album"
+    end
+
+    test "filters albums by artist when artist query parameter is provided", %{conn: _conn} do
+      genre = insert!(:genre)
+      artist1 = insert!(:artist, name: "Artist One")
+      artist2 = insert!(:artist, name: "Artist Two")
+
+      album1 =
+        insert!(:album, %{
+          title: "Album by Artist One",
+          artist_id: artist1.id,
+          genre_id: genre.id
+        })
+
+      _album2 =
+        insert!(:album, %{
+          title: "Album by Artist Two",
+          artist_id: artist2.id,
+          genre_id: genre.id
+        })
+
+      conn = Plug.Test.conn(:get, "/api/albums?artist=#{artist1.id}")
+      conn = ElixirRadio.StreamingServer.call(conn, [])
+
+      assert conn.status == 200
+      body = Jason.decode!(conn.resp_body)
+      assert is_list(body["albums"])
+      assert length(body["albums"]) == 1
+      assert Enum.at(body["albums"], 0)["id"] == album1.id
+      assert Enum.at(body["albums"], 0)["title"] == "Album by Artist One"
+    end
+
+    test "filters albums by both genre and artist when both query parameters provided", %{
+      conn: _conn
+    } do
+      genre1 = insert!(:genre, name: "Electronic")
+      genre2 = insert!(:genre, name: "Jazz")
+      artist1 = insert!(:artist, name: "Artist One")
+      artist2 = insert!(:artist, name: "Artist Two")
+
+      album1 =
+        insert!(:album, %{
+          title: "Electronic by Artist One",
+          artist_id: artist1.id,
+          genre_id: genre1.id
+        })
+
+      _album2 =
+        insert!(:album, %{
+          title: "Jazz by Artist One",
+          artist_id: artist1.id,
+          genre_id: genre2.id
+        })
+
+      _album3 =
+        insert!(:album, %{
+          title: "Electronic by Artist Two",
+          artist_id: artist2.id,
+          genre_id: genre1.id
+        })
+
+      conn = Plug.Test.conn(:get, "/api/albums?genre=#{genre1.id}&artist=#{artist1.id}")
+      conn = ElixirRadio.StreamingServer.call(conn, [])
+
+      assert conn.status == 200
+      body = Jason.decode!(conn.resp_body)
+      assert is_list(body["albums"])
+      assert length(body["albums"]) == 1
+      assert Enum.at(body["albums"], 0)["id"] == album1.id
+      assert Enum.at(body["albums"], 0)["title"] == "Electronic by Artist One"
+    end
   end
 end

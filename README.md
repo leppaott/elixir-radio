@@ -36,13 +36,13 @@ docker compose exec app mix run priv/repo/seeds.exs
 ### Genres
 
 - `GET /api/genres?per_page=20&after_id=5&sort_by=name&sort_order=asc` - List genres (cursor pagination)
-- `GET /api/genres/:id/albums?per_page=20&after_id=10&sort_by=id&sort_order=desc` - Albums by genre (cursor pagination)
 
 ### Albums & Artists
 
 - `GET /api/albums?per_page=20&after_id=15&sort_by=id&sort_order=desc` - List albums (cursor pagination)
+- `GET /api/albums?genre=1&per_page=20&after_id=10&sort_by=id&sort_order=desc` - Albums by genre (cursor pagination)
+- `GET /api/albums?artist=3&per_page=20&after_id=8&sort_by=id&sort_order=desc` - Albums by artist (cursor pagination)
 - `GET /api/albums/:id` - Get album with tracks
-- `GET /api/artists/:id/albums?per_page=20&after_id=8&sort_by=id&sort_order=desc` - Albums by artist (cursor pagination)
 
 ### Tracks
 

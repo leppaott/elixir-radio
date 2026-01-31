@@ -39,7 +39,7 @@ GENRE_COUNT=$(docker compose exec -T postgres psql -U postgres -d elixir_radio -
 
 if [ "$GENRE_COUNT" -eq "0" ]; then
   echo "📝 Seeding sample data..."
-  docker compose run --rm -e MIX_ENV=dev app mix run priv/repo/seeds.exs
+  docker compose exec -T postgres psql -U postgres -d elixir_radio < seed.sql
 else
   echo "✓ Database already has data (skipping seed)"
 fi

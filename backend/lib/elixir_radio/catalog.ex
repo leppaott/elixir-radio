@@ -65,28 +65,27 @@ defmodule ElixirRadio.Catalog do
     end
   end
 
-  def list_albums_by_genre(genre_id, opts \\ []) do
-    query =
-      Album
-      |> where([a], a.genre_id == ^genre_id)
-      |> preload([:artist, :tracks, :genre])
-
-    paginate(query, opts)
-  end
-
   def list_albums(opts \\ []) do
-    query =
-      Album
-      |> preload([:artist, :tracks, :genre])
+    genre_id = Keyword.get(opts, :genre_id)
+    artist_id = Keyword.get(opts, :artist_id)
 
-    paginate(query, opts)
-  end
+    query = Album
 
-  def list_albums_by_artist(artist_id, opts \\ []) do
     query =
-      Album
-      |> where([a], a.artist_id == ^artist_id)
-      |> preload([:artist, :tracks, :genre])
+      if genre_id do
+        where(query, [a], a.genre_id == ^genre_id)
+      else
+        query
+      end
+
+    query =
+      if artist_id do
+        where(query, [a], a.artist_id == ^artist_id)
+      else
+        query
+      end
+
+    query = preload(query, [:artist, :tracks, :genre])
 
     paginate(query, opts)
   end
