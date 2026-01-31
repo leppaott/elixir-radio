@@ -40,15 +40,18 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
         |> Repo.update!()
 
       try do
-        temp_dir = System.tmp_dir!()
-        temp_input = Path.join(temp_dir, "input_#{track_id}_#{:rand.uniform(999_999)}")
+        temp_dir =
+          Path.join(System.tmp_dir!(), "upload_#{track_id}_#{System.unique_integer([:positive])}")
+
+        File.mkdir_p!(temp_dir)
+
+        temp_input = Path.join(temp_dir, "raw_#{track_id}")
 
         File.write!(temp_input, track.upload.file_data)
-        Logger.info("Created temp file: #{temp_input}")
 
-        result = process_audio(temp_input, track)
+        result = process_audio(temp_dir, temp_input, track)
 
-        File.rm(temp_input)
+        File.rm_rf!(temp_dir)
 
         case result do
           {:ok, playlist_data, segment_count} ->
@@ -73,6 +76,7 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
             |> Repo.update!()
 
             update_track_status(track, :failed)
+
             {:error, reason}
         end
       rescue
@@ -87,16 +91,15 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
           |> Repo.update!()
 
           update_track_status(track, :failed)
+
+          Logger.error("Processing crashed for track #{track_id}: #{inspect(error)}")
+
           {:error, Exception.message(error)}
       end
     end
   end
 
-  defp process_audio(input_file, track) do
-    temp_dir = System.tmp_dir!()
-    output_dir = Path.join(temp_dir, "segments_#{track.id}_#{:rand.uniform(999_999)}")
-    File.mkdir_p!(output_dir)
-
+  defp process_audio(output_dir, input_file, track) do
     playlist_file = Path.join(output_dir, "playlist.m3u8")
     segment_pattern = Path.join(output_dir, "segment%d.ts")
 
@@ -128,7 +131,6 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
     Logger.info("Running ffmpeg for track #{track.id}")
 
-    # Suppress verbose FFmpeg stderr in test
     result =
       if Mix.env() == :test do
         # Redirect stderr to /dev/null in test mode
@@ -171,23 +173,11 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
           end)
 
         {count, _} = Repo.insert_all(SegmentFile, rows)
-        Logger.info("Inserted #{count} segment file rows for track #{track.id}")
 
-        File.rm_rf!(output_dir)
-
-        segment_count = length(segment_files)
-        Logger.info("Generated #{segment_count} segments for track #{track.id}")
-        {:ok, playlist_data, segment_count}
+        {:ok, playlist_data, count}
 
       {output, exit_code} ->
-        File.rm_rf!(output_dir)
         error_msg = "FFmpeg failed with exit code #{exit_code}: #{output}"
-
-        # Expected in tests, only log in production
-        if Mix.env() != :test do
-          Logger.error(error_msg)
-        end
-
         {:error, error_msg}
     end
   end
