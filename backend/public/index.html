@@ -184,7 +184,7 @@
 <body>
     <div class="container">
         <h1>🎵 Elixir Radio</h1>
-        <p class="subtitle">Vinyl Record Store - Audio Preview Demo</p>
+        <p class="subtitle">Record Store - Audio Preview Demo</p>
 
         <div class="info-box">
             <strong>Welcome!</strong> Browse albums and click "Play Sample" to listen to 60-second previews of each track.
@@ -253,8 +253,8 @@
                             </div>
                             <button class="play-button"
                                     onclick="playTrack(${track.id})"
-                                    ${!track.stream_id ? 'disabled title="No stream available"' : ''}>
-                                ${track.stream_id ? 'Play Sample' : 'No Stream'}
+                                    ${track.upload_status !== 'ready' ? 'disabled title="No stream available"' : ''}>
+                                ${track.upload_status === 'ready' ? 'Play Sample' : 'No Stream'}
                             </button>
                         </li>
                     `).join('');

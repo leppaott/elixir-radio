@@ -20,9 +20,22 @@ defmodule ElixirRadio.StaticHeaders do
 
   defp content_type_headers(filename) do
     case Path.extname(filename) do
-      ".m3u8" -> [{"content-type", "application/vnd.apple.mpegurl"}]
-      ".ts" -> [{"content-type", "video/mp2t"}]
-      _ -> []
+      ".m3u8" ->
+        [
+          {"content-type", "application/vnd.apple.mpegurl"},
+          # 1 hour
+          {"cache-control", "public, max-age=3600"}
+        ]
+
+      ".ts" ->
+        [
+          {"content-type", "video/mp2t"},
+          # 24 hours - segments are immutable
+          {"cache-control", "public, max-age=86400"}
+        ]
+
+      _ ->
+        []
     end
   end
 end

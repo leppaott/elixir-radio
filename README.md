@@ -117,7 +117,7 @@ curl -X POST http://localhost:4000/admin/tracks/14/upload \
 
 ### Storage
 - Individual segment files stored in PostgreSQL `segment_files` table as raw `bytea` (no Base64)
-- ~300KB per segment file, ~12 segments per 120s track
+- ~200KB per segment file, ~12 segments per 120s track
 - Cursor-based pagination for efficient querying at scale
 - Query only the specific segment needed (not entire track data)
 

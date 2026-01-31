@@ -1,4 +1,9 @@
-FROM elixir:1.18-alpine AS build
+FROM elixir:1.19-alpine AS build
+
+# Install build dependencies
+RUN apk add --no-cache \
+    build-base \
+    git
 
 WORKDIR /app
 
@@ -14,9 +19,13 @@ ENV MIX_ENV=prod
 RUN mix compile
 RUN mix release
 
-FROM alpine:3.16
+FROM alpine:3.23
 
-RUN apk add --no-cache libstdc++ ncurses-libs
+# Install runtime dependencies
+RUN apk add --no-cache \
+    libstdc++ \
+    ncurses-libs \
+    ffmpeg
 
 WORKDIR /app
 

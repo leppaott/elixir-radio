@@ -29,6 +29,7 @@ defmodule ElixirRadio.MixProject do
       {:postgrex, "~> 0.20"},
       {:jason, "~> 1.4"},
       {:oban, "~> 2.20"},
+      {:cachex, "~> 4.0"},
       {:lettuce, "~> 0.3", only: :dev},
       {:testcontainers, "~> 1.10", only: :test}
     ]

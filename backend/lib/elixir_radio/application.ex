@@ -5,12 +5,34 @@ defmodule ElixirRadio.Application do
 
   @impl true
   def start(_type, _args) do
+    import Cachex.Spec
+
     # In test, Repo and Oban are managed by test_helper
     children =
       if Mix.env() == :test do
-        []
+        [
+          # Segment cache: 150 entries (~30MB), 24h TTL, LRW eviction
+          {Cachex,
+           name: :segment_cache,
+           hooks: [
+             hook(
+               module: Cachex.Limit.Scheduled,
+               args: {150, [reclaim: 0.1], [frequency: :timer.seconds(3)]}
+             )
+           ]}
+        ]
       else
         [
+          # Segment cache: 1000 entries (~200MB), 24h TTL, LRW eviction
+          {Cachex,
+           name: :segment_cache,
+           hooks: [
+             hook(
+               module: Cachex.Limit.Scheduled,
+               args: {1000, [reclaim: 0.1], [frequency: :timer.seconds(3)]}
+             )
+           ]},
+
           # Database repo
           {ElixirRadio.Repo, []},
 

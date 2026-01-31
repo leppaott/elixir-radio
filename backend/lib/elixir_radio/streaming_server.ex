@@ -5,6 +5,7 @@ defmodule ElixirRadio.StreamingServer do
   alias ElixirRadio.Catalog.{Segment, SegmentFile}
   alias ElixirRadio.StaticHeaders
   alias ElixirRadio.Workers.ProcessAudioJob
+  alias ElixirRadio.SegmentCache
 
   require Logger
 
@@ -357,16 +358,35 @@ defmodule ElixirRadio.StreamingServer do
 
     case Catalog.get_segment_by_track(track_id) do
       %Segment{id: segment_id, processing_status: "completed"} ->
-        case Catalog.get_segment_file(segment_id, segment_num) do
+        segment_data =
+          case SegmentCache.get(segment_id, segment_num) do
+            nil ->
+              # Cache miss - fetch from DB
+              case Catalog.get_segment_file(segment_id, segment_num) do
+                nil ->
+                  nil
+
+                %SegmentFile{data: data} ->
+                  # Store in cache with TTL
+                  SegmentCache.put(segment_id, segment_num, data)
+                  data
+              end
+
+            data ->
+              # Cache hit
+              data
+          end
+
+        case segment_data do
           nil ->
             conn
             |> StaticHeaders.apply()
             |> send_json(404, %{error: "Segment not found"})
 
-          %SegmentFile{data: segment_data} ->
+          data ->
             conn
             |> StaticHeaders.apply()
-            |> send_resp(200, segment_data)
+            |> send_resp(200, data)
         end
 
       _ ->

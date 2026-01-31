@@ -29,7 +29,7 @@ echo "✓ PostgreSQL is ready"
 
 # Setup database (without starting app)
 echo "🗄️  Setting up database..."
-docker compose run --rm app mix deps.get
+docker compose run --rm --build app mix deps.get
 docker compose run --rm app mix ecto.create || echo "✓ Database already exists"
 docker compose run --rm app mix ecto.migrate
 
@@ -46,7 +46,7 @@ fi
 
 # Now start the app
 echo "🚀 Starting application..."
-docker compose up -d app
+docker compose up -d --build app
 
 echo ""
 echo "================================"
