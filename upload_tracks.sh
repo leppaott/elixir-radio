@@ -3,7 +3,7 @@
 # Upload tracks from ~/Songs directory to backend
 # Randomly skips ~10% of tracks to simulate incomplete albums
 
-SONGS_DIR="${SONGS_DIR:-$HOME/Songs}"
+SONGS_DIR="${1:-$HOME/Songs}"
 API_URL="${API_URL:-http://localhost:4000}"
 SKIP_PROBABILITY=10        # 10% chance to skip
 MAX_PARALLEL="${MAX_PARALLEL:-10}"  # Number of parallel uploads
@@ -12,8 +12,8 @@ echo "Starting track upload from $SONGS_DIR"
 echo "-------------------------------------------"
 
 if [ ! -d "$SONGS_DIR" ]; then
-  echo "ERROR: Directory $SONGS_DIR not found"
-  exit 1
+  echo "Directory $SONGS_DIR not found songs upload skipped."
+  exit 0
 fi
 
 # Get total number of tracks from database
@@ -39,8 +39,8 @@ while IFS= read -r file; do
 done < <(find "$SONGS_DIR" -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.m4a" \))
 
 if [ ${#audio_files[@]} -eq 0 ]; then
-  echo "ERROR: No audio files found in $SONGS_DIR"
-  exit 1
+  echo "No audio files found in $SONGS_DIR"
+  exit 0
 fi
 
 # Loop through tracks, cycling through audio files
