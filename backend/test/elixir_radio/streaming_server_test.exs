@@ -129,11 +129,11 @@ defmodule ElixirRadio.StreamingServerTest do
 
       assert body["genre"] == "Electronic"
       assert is_list(body["tracks"])
-      assert body["page"] == 1
-      assert body["total_pages"] >= 1
+      assert Map.has_key?(body["pagination"], "has_more")
+      assert Map.has_key?(body["pagination"], "next_cursor")
     end
 
-    test "supports pagination", %{conn: _conn} do
+    test "supports cursor-based pagination", %{conn: _conn} do
       genre = insert!(:genre, name: "Electronic")
       artist = insert!(:artist)
 
@@ -153,15 +153,31 @@ defmodule ElixirRadio.StreamingServerTest do
         })
       end
 
-      # Test page 1
-      conn = Plug.Test.conn(:get, "/streams/Electronic?page=1&per_page=2")
+      # Test first page
+      conn = Plug.Test.conn(:get, "/streams/Electronic?per_page=2&sort_by=id&sort_order=asc")
       conn = ElixirRadio.StreamingServer.call(conn, [])
 
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
 
-      assert body["page"] == 1
-      assert body["per_page"] == 2
+      assert body["pagination"]["per_page"] == 2
+      assert body["pagination"]["has_more"] == true
+      assert body["pagination"]["next_cursor"] != nil
+
+      # Test second page using cursor
+      next_cursor = body["pagination"]["next_cursor"]
+
+      conn2 =
+        Plug.Test.conn(
+          :get,
+          "/streams/Electronic?per_page=2&after_id=#{next_cursor}&sort_by=id&sort_order=asc"
+        )
+
+      conn2 = ElixirRadio.StreamingServer.call(conn2, [])
+
+      assert conn2.status == 200
+      body2 = Jason.decode!(conn2.resp_body)
+      assert body2["pagination"]["has_more"] == false
     end
   end
 

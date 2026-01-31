@@ -68,7 +68,6 @@ defmodule ElixirRadio.UploadProcessingStreamingTest do
       response = json_response(conn, 200)
 
       assert response["genre"] == genre.name
-      assert response["total_count"] == 1
       assert length(response["tracks"]) == 1
 
       track_in_stream = hd(response["tracks"])

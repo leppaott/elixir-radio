@@ -46,27 +46,44 @@ defmodule ElixirRadio.StreamingServer do
   # === Genre Endpoints ===
 
   get "/api/genres" do
-    page = String.to_integer(conn.params["page"] || "1")
+    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
     per_page = String.to_integer(conn.params["per_page"] || "20")
+    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
+    sort_order = String.to_existing_atom(conn.params["sort_order"] || "asc")
 
-    result = Catalog.list_genres(page: page, per_page: per_page)
+    result =
+      Catalog.list_genres(
+        after_id: after_id,
+        per_page: per_page,
+        sort_by: sort_by,
+        sort_order: sort_order
+      )
 
     send_json(conn, 200, %{
       genres: result.items,
       pagination: %{
-        page: result.page,
         per_page: result.per_page,
-        total_pages: result.total_pages,
-        total_count: result.total_count
+        has_more: result.has_more,
+        next_cursor: result.next_cursor,
+        sort_by: result.sort_by,
+        sort_order: result.sort_order
       }
     })
   end
 
   get "/api/albums" do
-    page = String.to_integer(conn.params["page"] || "1")
+    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
     per_page = String.to_integer(conn.params["per_page"] || "20")
+    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
+    sort_order = String.to_existing_atom(conn.params["sort_order"] || "desc")
 
-    result = Catalog.list_albums(page: page, per_page: per_page)
+    result =
+      Catalog.list_albums(
+        after_id: after_id,
+        per_page: per_page,
+        sort_by: sort_by,
+        sort_order: sort_order
+      )
 
     albums =
       Enum.map(result.items, fn album ->
@@ -99,28 +116,38 @@ defmodule ElixirRadio.StreamingServer do
     send_json(conn, 200, %{
       albums: albums,
       pagination: %{
-        page: result.page,
         per_page: result.per_page,
-        total_pages: result.total_pages,
-        total_count: result.total_count
+        has_more: result.has_more,
+        next_cursor: result.next_cursor,
+        sort_by: result.sort_by,
+        sort_order: result.sort_order
       }
     })
   end
 
   get "/api/genres/:id/albums" do
-    page = String.to_integer(conn.params["page"] || "1")
+    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
     per_page = String.to_integer(conn.params["per_page"] || "20")
+    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
+    sort_order = String.to_existing_atom(conn.params["sort_order"] || "desc")
 
     try do
-      result = Catalog.list_albums_by_genre(id, page: page, per_page: per_page)
+      result =
+        Catalog.list_albums_by_genre(id,
+          after_id: after_id,
+          per_page: per_page,
+          sort_by: sort_by,
+          sort_order: sort_order
+        )
 
       send_json(conn, 200, %{
         albums: result.items,
         pagination: %{
-          page: result.page,
           per_page: result.per_page,
-          total_pages: result.total_pages,
-          total_count: result.total_count
+          has_more: result.has_more,
+          next_cursor: result.next_cursor,
+          sort_by: result.sort_by,
+          sort_order: result.sort_order
         }
       })
     rescue
@@ -171,21 +198,31 @@ defmodule ElixirRadio.StreamingServer do
   # === Artist Endpoints ===
 
   get "/api/artists/:id/albums" do
-    page = String.to_integer(conn.params["page"] || "1")
+    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
     per_page = String.to_integer(conn.params["per_page"] || "20")
+    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
+    sort_order = String.to_existing_atom(conn.params["sort_order"] || "desc")
 
     try do
       artist = Catalog.get_artist!(id)
-      result = Catalog.list_albums_by_artist(id, page: page, per_page: per_page)
+
+      result =
+        Catalog.list_albums_by_artist(id,
+          after_id: after_id,
+          per_page: per_page,
+          sort_by: sort_by,
+          sort_order: sort_order
+        )
 
       send_json(conn, 200, %{
         artist: artist,
         albums: result.items,
         pagination: %{
-          page: result.page,
           per_page: result.per_page,
-          total_pages: result.total_pages,
-          total_count: result.total_count
+          has_more: result.has_more,
+          next_cursor: result.next_cursor,
+          sort_by: result.sort_by,
+          sort_order: result.sort_order
         }
       })
     rescue
@@ -244,12 +281,20 @@ defmodule ElixirRadio.StreamingServer do
   # === Streaming Endpoints ===
 
   get "/streams/:genre" do
-    page = String.to_integer(conn.params["page"] || "1")
+    after_id = conn.params["after_id"] && String.to_integer(conn.params["after_id"])
     per_page = String.to_integer(conn.params["per_page"] || "50")
+    sort_by = String.to_existing_atom(conn.params["sort_by"] || "id")
+    sort_order = String.to_existing_atom(conn.params["sort_order"] || "asc")
 
     case Catalog.get_genre_by_name(genre) do
       {:ok, genre_record} ->
-        result = Catalog.list_tracks_by_genre(genre_record.id, page: page, per_page: per_page)
+        result =
+          Catalog.list_tracks_by_genre(genre_record.id,
+            after_id: after_id,
+            per_page: per_page,
+            sort_by: sort_by,
+            sort_order: sort_order
+          )
 
         if Enum.empty?(result.items) do
           send_json(conn, 404, %{error: "Genre not found or no tracks available"})
@@ -270,10 +315,13 @@ defmodule ElixirRadio.StreamingServer do
           send_json(conn, 200, %{
             genre: genre_record.name,
             tracks: streams,
-            page: result.page,
-            per_page: result.per_page,
-            total_pages: result.total_pages,
-            total_count: result.total_count
+            pagination: %{
+              per_page: result.per_page,
+              has_more: result.has_more,
+              next_cursor: result.next_cursor,
+              sort_by: result.sort_by,
+              sort_order: result.sort_order
+            }
           })
         end
 

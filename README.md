@@ -35,14 +35,14 @@ docker compose exec app mix run priv/repo/seeds.exs
 
 ### Genres
 
-- `GET /api/genres?page=1&per_page=20` - List genres (paginated)
-- `GET /api/genres/:id/albums?page=1&per_page=20` - Albums by genre (paginated)
+- `GET /api/genres?per_page=20&after_id=5&sort_by=name&sort_order=asc` - List genres (cursor pagination)
+- `GET /api/genres/:id/albums?per_page=20&after_id=10&sort_by=id&sort_order=desc` - Albums by genre (cursor pagination)
 
 ### Albums & Artists
 
-- `GET /api/albums?page=1&per_page=20` - List albums (paginated)
+- `GET /api/albums?per_page=20&after_id=15&sort_by=id&sort_order=desc` - List albums (cursor pagination)
 - `GET /api/albums/:id` - Get album with tracks
-- `GET /api/artists/:id/albums?page=1&per_page=20` - Albums by artist (paginated)
+- `GET /api/artists/:id/albums?per_page=20&after_id=8&sort_by=id&sort_order=desc` - Albums by artist (cursor pagination)
 
 ### Tracks
 
@@ -50,9 +50,11 @@ docker compose exec app mix run priv/repo/seeds.exs
 
 ### Streaming (Internet Radio Style)
 
-- `GET /streams/:genre?page=1&per_page=50` - Get streamable tracks by genre
+- `GET /streams/:genre?per_page=50&after_id=100&sort_by=id&sort_order=asc` - Get streamable tracks by genre (cursor pagination)
 - `GET /streams/tracks/:track_id/playlist.m3u8` - HLS playlist
 - `GET /streams/tracks/:track_id/segments/:number.ts` - HLS segment
+
+**Cursor Pagination:** Use `after_id` (ID from `next_cursor` in response) to get the next page. All paginated endpoints support `sort_by` (column name) and `sort_order` (`asc`/`desc`). Response includes `has_more` and `next_cursor`.
 
 ### Admin
 
@@ -114,16 +116,23 @@ curl -X POST http://localhost:4000/admin/tracks/14/upload \
 ## Architecture
 
 ### Storage
-- All segments stored in PostgreSQL as `bytea`
-- ~3.6 MB per track (120s sample with 10s segments)
-- Atomic operations, simplified deployment
+- Individual segment files stored in PostgreSQL `segment_files` table as raw `bytea` (no Base64)
+- ~300KB per segment file, ~12 segments per 120s track
+- Cursor-based pagination for efficient querying at scale
+- Query only the specific segment needed (not entire track data)
 
 ### Processing Flow
 1. Upload → stored in `uploads` table
 2. Oban job queued → `ProcessAudioJob`
 3. Worker processes with FFmpeg
-4. Segments stored in `segments` table
+4. Each segment file stored as separate row in `segment_files` table
 5. Track status → "ready"
+
+### Pagination
+- **Cursor-based:** Use `after_id` + `sort_by` + `sort_order` for efficient pagination
+- No offset queries that slow down at high page numbers
+- Response includes `has_more` boolean and `next_cursor` for next page
+- Supports sorting by any column (id, name, inserted_at, etc.)
 
 ## Development
 

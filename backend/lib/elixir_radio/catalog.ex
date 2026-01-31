@@ -10,14 +10,9 @@ defmodule ElixirRadio.Catalog do
   # Genres
 
   def list_genres(opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    per_page = Keyword.get(opts, :per_page, 20)
+    query = from(g in Genre)
 
-    query =
-      Genre
-      |> order_by([g], asc: g.name)
-
-    paginate(query, page, per_page)
+    paginate(query, opts)
   end
 
   def get_genre!(id), do: Repo.get!(Genre, id)
@@ -71,41 +66,29 @@ defmodule ElixirRadio.Catalog do
   end
 
   def list_albums_by_genre(genre_id, opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    per_page = Keyword.get(opts, :per_page, 20)
-
     query =
       Album
       |> where([a], a.genre_id == ^genre_id)
       |> preload([:artist, :tracks, :genre])
-      |> order_by([a], desc: a.inserted_at)
 
-    paginate(query, page, per_page)
+    paginate(query, opts)
   end
 
   def list_albums(opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    per_page = Keyword.get(opts, :per_page, 20)
-
     query =
       Album
       |> preload([:artist, :tracks, :genre])
-      |> order_by([a], desc: a.inserted_at)
 
-    paginate(query, page, per_page)
+    paginate(query, opts)
   end
 
   def list_albums_by_artist(artist_id, opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    per_page = Keyword.get(opts, :per_page, 20)
-
     query =
       Album
       |> where([a], a.artist_id == ^artist_id)
       |> preload([:artist, :tracks, :genre])
-      |> order_by([a], desc: a.release_year)
 
-    paginate(query, page, per_page)
+    paginate(query, opts)
   end
 
   def get_album!(id) do
@@ -229,19 +212,15 @@ defmodule ElixirRadio.Catalog do
   end
 
   def list_tracks_by_genre(genre_id, opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    per_page = Keyword.get(opts, :per_page, 50)
-
     query =
       from(t in Track,
         join: a in Album,
         on: t.album_id == a.id,
         where: a.genre_id == ^genre_id and t.upload_status == "ready",
-        preload: [album: [:artist, :genre], segment: []],
-        order_by: [desc: t.inserted_at]
+        preload: [album: [:artist, :genre], segment: []]
       )
 
-    paginate(query, page, per_page)
+    paginate(query, opts)
   end
 
   def create_track(attrs \\ %{}) do
@@ -278,19 +257,44 @@ defmodule ElixirRadio.Catalog do
     Repo.get_by(SegmentFile, segment_id: segment_id, index: index)
   end
 
-  # Pagination helper
-  defp paginate(query, page, per_page) do
-    offset = (page - 1) * per_page
+  # Pagination helper - supports cursor-based pagination with after_id
+  defp paginate(query, opts) do
+    per_page = Keyword.get(opts, :per_page, 20)
+    after_id = Keyword.get(opts, :after_id)
+    sort_by = Keyword.get(opts, :sort_by, :id)
+    sort_order = Keyword.get(opts, :sort_order, :asc)
 
-    items = query |> limit(^per_page) |> offset(^offset) |> Repo.all()
-    total_count = query |> exclude(:preload) |> exclude(:order_by) |> Repo.aggregate(:count)
+    # Apply sorting - always include id as secondary sort for consistency
+    query =
+      if sort_by == :id do
+        order_by(query, [{^sort_order, :id}])
+      else
+        order_by(query, [{^sort_order, ^sort_by}, {^sort_order, :id}])
+      end
+
+    # Apply cursor filter if after_id is provided (always filter by ID)
+    query =
+      if after_id do
+        where(query, [r], r.id > ^after_id)
+      else
+        query
+      end
+
+    # Fetch items + 1 to check if there are more
+    items = query |> limit(^(per_page + 1)) |> Repo.all()
+
+    has_more = length(items) > per_page
+    items = Enum.take(items, per_page)
+
+    next_cursor = if has_more and length(items) > 0, do: List.last(items).id
 
     %{
       items: items,
-      page: page,
       per_page: per_page,
-      total_count: total_count,
-      total_pages: ceil(total_count / per_page)
+      has_more: has_more,
+      next_cursor: next_cursor,
+      sort_by: sort_by,
+      sort_order: sort_order
     }
   end
 end

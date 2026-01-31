@@ -118,20 +118,35 @@ defmodule ElixirRadio.CatalogTest do
       assert album.release_year == 2024
     end
 
-    test "list_albums_by_genre/2 returns paginated albums for genre" do
+    test "list_albums_by_genre/2 returns paginated albums for genre with cursor" do
       genre = insert!(:genre)
       other_genre = insert!(:genre)
       artist = insert!(:artist)
 
-      _album1 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
-      _album2 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
+      album1 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
+      album2 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
       _album3 = insert!(:album, %{artist_id: artist.id, genre_id: other_genre.id})
 
-      result = Catalog.list_albums_by_genre(genre.id, page: 1, per_page: 10)
+      # First page
+      result = Catalog.list_albums_by_genre(genre.id, per_page: 1, sort_by: :id, sort_order: :asc)
 
-      assert result.page == 1
-      assert result.total_count == 2
-      assert length(result.items) == 2
+      assert result.per_page == 1
+      assert length(result.items) == 1
+      assert result.has_more == true
+      assert result.next_cursor == album1.id
+
+      # Second page using cursor
+      result2 =
+        Catalog.list_albums_by_genre(genre.id,
+          after_id: result.next_cursor,
+          per_page: 1,
+          sort_by: :id,
+          sort_order: :asc
+        )
+
+      assert length(result2.items) == 1
+      assert result2.has_more == false
+      assert hd(result2.items).id == album2.id
     end
   end
 
@@ -199,9 +214,8 @@ defmodule ElixirRadio.CatalogTest do
           upload_status: "pending"
         })
 
-      result = Catalog.list_tracks_by_genre(genre.id, page: 1, per_page: 10)
+      result = Catalog.list_tracks_by_genre(genre.id, per_page: 10)
 
-      assert result.total_count == 1
       assert length(result.items) == 1
       assert hd(result.items).upload_status == "ready"
     end
