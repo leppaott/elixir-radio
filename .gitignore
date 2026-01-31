@@ -1,7 +1,14 @@
-# Backend
-_build
-deps
-erl_crash.dump
-*.ez
-*.tar
-.elixir_ls/
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
