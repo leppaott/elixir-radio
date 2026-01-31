@@ -128,7 +128,13 @@ export function AudioPlayer() {
           <LinearProgress
             variant="determinate"
             value={duration ? (currentTime / duration) * 100 : 0}
-            sx={{ height: 6, borderRadius: 1 }}
+            sx={{
+              height: 6,
+              borderRadius: 1,
+              "& .MuiLinearProgress-bar": {
+                transition: "none",
+              },
+            }}
           />
         </Box>
         <Stack direction="row" justifyContent="space-between" sx={{ mt: 0.5 }}>

@@ -19,6 +19,7 @@ defmodule ElixirRadio.ApiAlbumsTest do
         title: "Track 1",
         album_id: album.id,
         track_number: 1,
+        alt_track_number: "A1",
         upload_status: "pending"
       })
 
@@ -32,7 +33,9 @@ defmodule ElixirRadio.ApiAlbumsTest do
       first = Enum.find(body["albums"], &(&1["id"] == album.id))
       assert first
       assert is_list(first["tracks"]) and length(first["tracks"]) == 1
-      assert Enum.at(first["tracks"], 0)["stream_id"] == nil
+      track = Enum.at(first["tracks"], 0)
+      assert track["stream_id"] == nil
+      assert track["alt_track_number"] == "A1"
     end
 
     test "returns tracks with upload_status regardless of segment availability", %{conn: _conn} do
