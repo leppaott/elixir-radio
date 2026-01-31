@@ -1,91 +1,191 @@
 "use client";
 
 import {
-  IconPlayerPause,
-  IconPlayerPlay,
-  IconPlayerSkipBack,
-  IconPlayerSkipForward,
-} from "@tabler/icons-react";
+  MusicNote,
+  Pause,
+  PlayArrow,
+  SkipNext,
+  SkipPrevious,
+} from "@mui/icons-material";
+import {
+  Box,
+  IconButton,
+  LinearProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { usePlayer } from "@/contexts/PlayerContext";
 
 export function AudioPlayer() {
-  const { currentTrack, isPlaying, toggle, audioRef } = usePlayer();
+  const { currentTrack, isPlaying, toggle, next, prev, audioRef } = usePlayer();
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef?.current;
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration);
+
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", updateDuration);
+    audio.addEventListener("durationchange", updateDuration);
+
+    // Initialize duration from track metadata if audio duration not available yet
+    if (currentTrack?.duration_seconds) {
+      setDuration(currentTrack.duration_seconds);
+    }
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", updateDuration);
+      audio.removeEventListener("durationchange", updateDuration);
+    };
+  }, [audioRef, currentTrack]);
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef?.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    audioRef.current.currentTime = percentage * duration;
+  };
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || Number.isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${String(secs).padStart(2, "0")}`;
+  };
 
   if (!currentTrack) {
     return (
-      <div className="flex items-center justify-center p-4 text-gray-400 text-sm">
-        <p>No track playing</p>
-      </div>
+      <Stack spacing={2} alignItems="center" sx={{ p: 3 }}>
+        <Box
+          sx={{
+            width: 192,
+            height: 192,
+            bgcolor: "grey.800",
+            borderRadius: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <MusicNote sx={{ fontSize: 80, color: "grey.600" }} />
+        </Box>
+        <Typography variant="body2" color="text.secondary">
+          No track playing
+        </Typography>
+      </Stack>
     );
   }
 
-  const handleSeek = (seconds: number) => {
-    if (audioRef?.current) {
-      audioRef.current.currentTime += seconds;
-    }
-  };
-
   return (
-    <div className="flex items-center gap-4 p-4 bg-gray-950">
-      {/* Compact Album Art */}
+    <Stack spacing={2} alignItems="center" sx={{ p: 3 }}>
+      {/* Album Art */}
       {currentTrack.album?.cover_image_url ? (
-        <div className="w-14 h-14 relative">
+        <Box
+          sx={{
+            width: 192,
+            height: 192,
+            position: "relative",
+            borderRadius: 2,
+            overflow: "hidden",
+            boxShadow: 3,
+          }}
+        >
           <Image
             src={currentTrack.album.cover_image_url}
             alt={currentTrack.album.title}
             fill
-            className="rounded object-cover"
+            style={{ objectFit: "cover" }}
           />
-        </div>
+        </Box>
       ) : (
-        <div className="w-14 h-14 bg-gray-800 rounded flex items-center justify-center">
-          <span className="text-gray-500 text-xl">♪</span>
-        </div>
+        <Box
+          sx={{
+            width: 192,
+            height: 192,
+            bgcolor: "grey.800",
+            borderRadius: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: 3,
+          }}
+        >
+          <MusicNote sx={{ fontSize: 80, color: "grey.600" }} />
+        </Box>
       )}
 
+      {/* Progress Bar */}
+      <Box sx={{ width: "100%" }}>
+        <Box onClick={handleProgressClick} sx={{ cursor: "pointer", py: 1 }}>
+          <LinearProgress
+            variant="determinate"
+            value={duration ? (currentTime / duration) * 100 : 0}
+            sx={{ height: 6, borderRadius: 1 }}
+          />
+        </Box>
+        <Stack direction="row" justifyContent="space-between" sx={{ mt: 0.5 }}>
+          <Typography variant="caption" color="text.secondary">
+            {formatTime(currentTime)}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {formatTime(duration)}
+          </Typography>
+        </Stack>
+      </Box>
+
       {/* Track Info */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-semibold text-white truncate">
+      <Box sx={{ textAlign: "center", width: "100%" }}>
+        <Typography variant="body1" fontWeight="600" noWrap sx={{ px: 1 }}>
           {currentTrack.title}
-        </h3>
-        <p className="text-xs text-gray-400 truncate">
-          {currentTrack.artist?.name} · {currentTrack.album?.title}
-        </p>
-      </div>
-
-      {/* Compact Controls */}
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => handleSeek(-10)}
-          className="p-1.5 hover:bg-gray-800 rounded transition"
-          title="Rewind 10s"
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          noWrap
+          sx={{ px: 1 }}
         >
-          <IconPlayerSkipBack size={18} />
-        </button>
+          {currentTrack.artist?.name}
+        </Typography>
+        <Typography
+          variant="caption"
+          color="text.disabled"
+          noWrap
+          sx={{ px: 1 }}
+        >
+          {currentTrack.album?.title}
+        </Typography>
+      </Box>
 
-        <button
-          type="button"
+      {/* Controls */}
+      <Stack direction="row" spacing={1} alignItems="center">
+        <IconButton onClick={prev} size="large" title="Previous track">
+          <SkipPrevious />
+        </IconButton>
+
+        <IconButton
           onClick={toggle}
-          className="p-2 bg-blue-600 hover:bg-blue-700 rounded transition"
+          color="primary"
+          size="large"
+          sx={{
+            bgcolor: "primary.main",
+            "&:hover": { bgcolor: "primary.dark" },
+          }}
         >
-          {isPlaying ? (
-            <IconPlayerPause size={20} />
-          ) : (
-            <IconPlayerPlay size={20} />
-          )}
-        </button>
+          {isPlaying ? <Pause /> : <PlayArrow />}
+        </IconButton>
 
-        <button
-          type="button"
-          onClick={() => handleSeek(10)}
-          className="p-1.5 hover:bg-gray-800 rounded transition"
-          title="Forward 10s"
-        >
-          <IconPlayerSkipForward size={18} />
-        </button>
-      </div>
-    </div>
+        <IconButton onClick={next} size="large" title="Next track">
+          <SkipNext />
+        </IconButton>
+      </Stack>
+    </Stack>
   );
 }

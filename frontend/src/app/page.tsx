@@ -1,100 +1,69 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { AlbumCard } from "@/components/AlbumCard";
+import { Box, Container, Divider } from "@mui/material";
+import { AlbumList } from "@/components/AlbumList";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { GenreBar } from "@/components/GenreBar";
-import type { Album, AlbumsResponse } from "@/types/api";
+import type { AlbumsResponse, Genre } from "@/types/api";
 
-export default function HomePage() {
-  const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
-  const [albums, setAlbums] = useState<Album[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<number | null>(null);
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-  useEffect(() => {
-    setLoading(true);
-    const url = selectedGenre
-      ? `/api/albums?genre=${selectedGenre}&per_page=20`
-      : "/api/albums?per_page=20";
+async function getGenres(): Promise<Genre[]> {
+  const res = await fetch(`${API_BASE}/api/genres?per_page=50`, {
+    cache: "force-cache",
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.genres || [];
+}
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data: AlbumsResponse) => {
-        setAlbums(data.albums || []);
-        setHasMore(data.pagination?.has_more || false);
-        setNextCursor(data.pagination?.next_cursor || null);
-      })
-      .finally(() => setLoading(false));
-  }, [selectedGenre]);
+async function getAlbums(genreId?: string): Promise<AlbumsResponse> {
+  const url = genreId
+    ? `${API_BASE}/api/albums?genre=${genreId}&per_page=20`
+    : `${API_BASE}/api/albums?per_page=20`;
 
-  const loadMore = () => {
-    if (!hasMore || !nextCursor) return;
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok)
+    return {
+      albums: [],
+      pagination: {
+        per_page: 20,
+        has_more: false,
+        next_cursor: null,
+        sort_by: "id",
+        sort_order: "desc",
+      },
+    };
+  return res.json();
+}
 
-    const url = selectedGenre
-      ? `/api/albums?genre=${selectedGenre}&per_page=20&after_id=${nextCursor}`
-      : `/api/albums?per_page=20&after_id=${nextCursor}`;
-
-    fetch(url)
-      .then((res) => res.json())
-      .then((data: AlbumsResponse) => {
-        setAlbums((prev) => [...prev, ...(data.albums || [])]);
-        setHasMore(data.pagination?.has_more || false);
-        setNextCursor(data.pagination?.next_cursor || null);
-      });
-  };
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { genre?: string };
+}) {
+  const genres = await getGenres();
+  const albumsData = await getAlbums(searchParams.genre);
+  const selectedGenre = searchParams.genre ? Number(searchParams.genre) : null;
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Top Bar with Genre Bar and Player */}
-      <div className="flex items-center border-b border-gray-800">
-        {/* Genre Bar - Left Side */}
-        <div className="flex-1">
-          <GenreBar
-            selectedGenre={selectedGenre}
-            onSelectGenre={setSelectedGenre}
-          />
-        </div>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+      <GenreBar genres={genres} selectedGenre={selectedGenre} />
+      <Divider />
 
-        {/* Compact Player - Right Side */}
-        <div className="w-96 border-l border-gray-800">
+      <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        <Box sx={{ width: 320, borderRight: 1, borderColor: "divider" }}>
           <AudioPlayer />
-        </div>
-      </div>
+        </Box>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6">
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <p className="text-gray-400">Loading albums...</p>
-          </div>
-        ) : albums.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <p className="text-gray-400">No albums found</p>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-6">
-              {albums.map((album) => (
-                <AlbumCard key={album.id} album={album} />
-              ))}
-            </div>
-
-            {hasMore && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  type="button"
-                  onClick={loadMore}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-                >
-                  Load More
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+        <Box sx={{ flex: 1, overflow: "auto" }}>
+          <Container maxWidth="lg" sx={{ py: 3 }}>
+            <AlbumList
+              initialAlbums={albumsData.albums}
+              initialPagination={albumsData.pagination}
+              selectedGenre={selectedGenre}
+            />
+          </Container>
+        </Box>
+      </Box>
+    </Box>
   );
 }

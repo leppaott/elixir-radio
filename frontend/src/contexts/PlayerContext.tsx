@@ -9,6 +9,8 @@ interface PlayerContextType {
   play: (track: Track) => Promise<void>;
   pause: () => void;
   toggle: () => void;
+  next: () => void;
+  prev: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
 }
 
@@ -57,6 +59,30 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const next = () => {
+    if (!currentTrack?.album?.tracks) return;
+    const tracks = currentTrack.album.tracks;
+    const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
+    if (currentIndex < tracks.length - 1) {
+      const nextTrack = tracks[currentIndex + 1];
+      if (nextTrack.upload_status === "ready") {
+        play(nextTrack);
+      }
+    }
+  };
+
+  const prev = () => {
+    if (!currentTrack?.album?.tracks) return;
+    const tracks = currentTrack.album.tracks;
+    const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
+    if (currentIndex > 0) {
+      const prevTrack = tracks[currentIndex - 1];
+      if (prevTrack.upload_status === "ready") {
+        play(prevTrack);
+      }
+    }
+  };
+
   return (
     <PlayerContext.Provider
       value={{
@@ -65,6 +91,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         play,
         pause,
         toggle,
+        next,
+        prev,
         audioRef: audioRef as React.RefObject<HTMLAudioElement>,
       }}
     >

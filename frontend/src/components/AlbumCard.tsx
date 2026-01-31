@@ -1,6 +1,15 @@
 "use client";
 
-import { IconPlayerPlay } from "@tabler/icons-react";
+import { MusicNote, PlayArrow } from "@mui/icons-material";
+import {
+  Box,
+  Card,
+  Chip,
+  List,
+  ListItemButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import Image from "next/image";
 import { usePlayer } from "@/contexts/PlayerContext";
 import type { Album } from "@/types/api";
@@ -13,90 +22,121 @@ export function AlbumCard({ album }: AlbumCardProps) {
   const { play, currentTrack } = usePlayer();
 
   return (
-    <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
-      <div className="grid grid-cols-[auto_1fr_2fr] gap-4">
+    <Card sx={{ p: 2 }}>
+      <Box
+        sx={{ display: "grid", gridTemplateColumns: "auto 1fr 2fr", gap: 2 }}
+      >
         {/* Album Cover */}
-        <div className="w-24 h-24 relative">
+        <Box sx={{ width: 96, height: 96, position: "relative" }}>
           {album.cover_image_url ? (
             <Image
               src={album.cover_image_url}
               alt={album.title}
               fill
-              className="object-cover rounded"
+              style={{ objectFit: "cover", borderRadius: 8 }}
             />
           ) : (
-            <div className="w-full h-full bg-gray-800 rounded flex items-center justify-center">
-              <span className="text-gray-600 text-2xl">♪</span>
-            </div>
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                bgcolor: "grey.800",
+                borderRadius: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <MusicNote sx={{ fontSize: 40, color: "grey.600" }} />
+            </Box>
           )}
-        </div>
+        </Box>
 
         {/* Album Metadata */}
-        <div className="flex flex-col justify-center">
-          <h3 className="text-lg font-bold text-white">{album.title}</h3>
-          <p className="text-sm text-gray-400">{album.artist?.name}</p>
+        <Stack justifyContent="center" spacing={0.5}>
+          <Typography variant="h6" fontWeight="bold">
+            {album.title}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {album.artist?.name}
+          </Typography>
           {album.release_year && (
-            <p className="text-xs text-gray-500">{album.release_year}</p>
+            <Typography variant="caption" color="text.disabled">
+              {album.release_year}
+            </Typography>
           )}
-          {album.genre && (
-            <span className="inline-block mt-1 px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs w-fit">
-              {album.genre.name}
-            </span>
-          )}
-        </div>
+          {album.genre && <Chip label={album.genre.name} size="small" />}
+        </Stack>
 
         {/* Track List */}
-        <div className="flex flex-col gap-0.5">
+        <List
+          disablePadding
+          sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
+        >
           {album.tracks?.map((track) => {
             const isCurrentTrack = currentTrack?.id === track.id;
             const isReady = track.upload_status === "ready";
 
             return (
-              <button
+              <ListItemButton
                 key={track.id}
-                type="button"
                 onClick={() => isReady && play(track)}
                 disabled={!isReady}
-                className={`flex items-center gap-2 p-2 rounded text-left transition ${
-                  isCurrentTrack
-                    ? "bg-blue-600/20 border border-blue-600"
-                    : isReady
-                      ? "hover:bg-gray-800 border border-transparent"
-                      : "opacity-50 cursor-not-allowed border border-transparent"
-                }`}
+                selected={isCurrentTrack}
+                sx={{
+                  borderRadius: 1,
+                  gap: 1,
+                  opacity: isReady ? 1 : 0.5,
+                }}
               >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-800/50">
+                <Box
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    bgcolor: "action.hover",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   {isReady ? (
-                    <IconPlayerPlay size={12} className="text-white" />
+                    <PlayArrow sx={{ fontSize: 12 }} />
                   ) : (
-                    <span className="text-xs text-gray-300">
+                    <Typography variant="caption">
                       {track.track_number}
-                    </span>
+                    </Typography>
                   )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={`text-sm font-medium truncate ${isCurrentTrack ? "text-blue-400" : "text-gray-200"}`}
-                  >
-                    {track.title}
-                  </p>
-                </div>
+                </Box>
+                <Typography
+                  variant="body2"
+                  fontWeight={isCurrentTrack ? "600" : "400"}
+                  color={isCurrentTrack ? "primary" : "text.primary"}
+                  sx={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}
+                  noWrap
+                >
+                  {track.title}
+                </Typography>
                 {track.duration_seconds && (
-                  <span className="text-xs text-gray-500 ml-2">
+                  <Typography variant="caption" color="text.secondary">
                     {Math.floor(track.duration_seconds / 60)}:
                     {String(track.duration_seconds % 60).padStart(2, "0")}
-                  </span>
+                  </Typography>
                 )}
                 {!isReady && (
-                  <span className="text-xs text-gray-500 capitalize ml-2">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ textTransform: "capitalize" }}
+                  >
                     {track.upload_status}
-                  </span>
+                  </Typography>
                 )}
-              </button>
+              </ListItemButton>
             );
           })}
-        </div>
-      </div>
-    </div>
+        </List>
+      </Box>
+    </Card>
   );
 }

@@ -1,51 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Box, Chip, Stack } from "@mui/material";
+import Link from "next/link";
 import type { Genre } from "@/types/api";
 
 interface GenreBarProps {
+  genres: Genre[];
   selectedGenre: number | null;
-  onSelectGenre: (genreId: number | null) => void;
 }
 
-export function GenreBar({ selectedGenre, onSelectGenre }: GenreBarProps) {
-  const [genres, setGenres] = useState<Genre[]>([]);
-
-  useEffect(() => {
-    fetch("/api/genres?per_page=50")
-      .then((res) => res.json())
-      .then((data) => setGenres(data.genres || []));
-  }, []);
-
+export function GenreBar({ genres, selectedGenre }: GenreBarProps) {
   return (
-    <div className="bg-gray-900 px-6 py-3">
-      <div className="flex items-center gap-3 overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => onSelectGenre(null)}
-          className={`px-3 py-1.5 rounded-full whitespace-nowrap transition text-sm ${
-            selectedGenre === null
-              ? "bg-blue-600 text-white"
-              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-          }`}
-        >
-          All Genres
-        </button>
+    <Box sx={{ bgcolor: "background.paper", px: 3, py: 2 }}>
+      <Stack direction="row" spacing={1} sx={{ overflowX: "auto" }}>
+        <Chip
+          label="All Genres"
+          component={Link}
+          href="/"
+          clickable
+          color={selectedGenre === null ? "primary" : "default"}
+          variant={selectedGenre === null ? "filled" : "outlined"}
+        />
         {genres.map((genre) => (
-          <button
+          <Chip
             key={genre.id}
-            type="button"
-            onClick={() => onSelectGenre(genre.id)}
-            className={`px-3 py-1.5 rounded-full whitespace-nowrap transition text-sm ${
-              selectedGenre === genre.id
-                ? "bg-blue-600 text-white"
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-            }`}
-          >
-            {genre.name}
-          </button>
+            label={genre.name}
+            component={Link}
+            href={`/?genre=${genre.id}`}
+            clickable
+            color={selectedGenre === genre.id ? "primary" : "default"}
+            variant={selectedGenre === genre.id ? "filled" : "outlined"}
+          />
         ))}
-      </div>
-    </div>
+      </Stack>
+    </Box>
   );
 }

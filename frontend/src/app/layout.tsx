@@ -1,17 +1,8 @@
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { PlayerProvider } from "@/contexts/PlayerContext";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { theme } from "./theme";
 
 export const metadata: Metadata = {
   title: "Elixir Radio - Record Store",
@@ -25,10 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
-      >
-        <PlayerProvider>{children}</PlayerProvider>
+      <body>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <PlayerProvider>{children}</PlayerProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
