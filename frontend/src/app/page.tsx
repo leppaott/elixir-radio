@@ -7,9 +7,7 @@ import type { AlbumsResponse, Genre } from "@/types/api";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 async function getGenres(): Promise<Genre[]> {
-  const res = await fetch(`${API_BASE}/api/genres?per_page=50`, {
-    cache: "force-cache",
-  });
+  const res = await fetch(`${API_BASE}/api/genres?per_page=50`);
   if (!res.ok) return [];
   const data = await res.json();
   return data.genres || [];
@@ -20,7 +18,7 @@ async function getAlbums(genreId?: string): Promise<AlbumsResponse> {
     ? `${API_BASE}/api/albums?genre=${genreId}&per_page=20`
     : `${API_BASE}/api/albums?per_page=20`;
 
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url);
   if (!res.ok)
     return {
       albums: [],
@@ -35,11 +33,10 @@ async function getAlbums(genreId?: string): Promise<AlbumsResponse> {
   return res.json();
 }
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: { genre?: string };
+export default async function HomePage(props: {
+  searchParams: Promise<{ genre?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const genres = await getGenres();
   const albumsData = await getAlbums(searchParams.genre);
   const selectedGenre = searchParams.genre ? Number(searchParams.genre) : null;
@@ -57,6 +54,7 @@ export default async function HomePage({
         <Box sx={{ flex: 1, overflow: "auto" }}>
           <Container maxWidth="lg" sx={{ py: 3 }}>
             <AlbumList
+              key={selectedGenre ?? "all"}
               initialAlbums={albumsData.albums}
               initialPagination={albumsData.pagination}
               selectedGenre={selectedGenre}

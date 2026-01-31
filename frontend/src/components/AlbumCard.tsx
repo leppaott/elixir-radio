@@ -1,6 +1,6 @@
 "use client";
 
-import { MusicNote, PlayArrow } from "@mui/icons-material";
+import { MusicNote, Pause, PlayArrow } from "@mui/icons-material";
 import {
   Box,
   Card,
@@ -12,14 +12,29 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import { usePlayer } from "@/contexts/PlayerContext";
-import type { Album } from "@/types/api";
+import type { Album, Track } from "@/types/api";
 
 interface AlbumCardProps {
   album: Album;
 }
 
 export function AlbumCard({ album }: AlbumCardProps) {
-  const { play, currentTrack } = usePlayer();
+  const { play, toggle, currentTrack, isPlaying } = usePlayer();
+
+  const handleTrackClick = (track: Track) => {
+    const isCurrentTrack = currentTrack?.id === track.id;
+    if (isCurrentTrack) {
+      toggle();
+    } else {
+      // Ensure track has album and artist data for the player
+      const trackWithFullData = {
+        ...track,
+        album: album,
+        artist: album.artist,
+      };
+      play(trackWithFullData);
+    }
+  };
 
   return (
     <Card sx={{ p: 2 }}>
@@ -75,12 +90,13 @@ export function AlbumCard({ album }: AlbumCardProps) {
         >
           {album.tracks?.map((track) => {
             const isCurrentTrack = currentTrack?.id === track.id;
+            const isCurrentlyPlaying = isCurrentTrack && isPlaying;
             const isReady = track.upload_status === "ready";
 
             return (
               <ListItemButton
                 key={track.id}
-                onClick={() => isReady && play(track)}
+                onClick={() => isReady && handleTrackClick(track)}
                 disabled={!isReady}
                 selected={isCurrentTrack}
                 sx={{
@@ -101,7 +117,11 @@ export function AlbumCard({ album }: AlbumCardProps) {
                   }}
                 >
                   {isReady ? (
-                    <PlayArrow sx={{ fontSize: 12 }} />
+                    isCurrentlyPlaying ? (
+                      <Pause sx={{ fontSize: 12 }} />
+                    ) : (
+                      <PlayArrow sx={{ fontSize: 12 }} />
+                    )
                   ) : (
                     <Typography variant="caption">
                       {track.track_number}

@@ -152,7 +152,7 @@ export function AudioPlayer() {
           noWrap
           sx={{ px: 1 }}
         >
-          {currentTrack.artist?.name}
+          {currentTrack.album?.artist?.name}
         </Typography>
         <Typography
           variant="caption"
@@ -176,6 +176,7 @@ export function AudioPlayer() {
           size="large"
           sx={{
             bgcolor: "primary.main",
+            color: "white",
             "&:hover": { bgcolor: "primary.dark" },
           }}
         >

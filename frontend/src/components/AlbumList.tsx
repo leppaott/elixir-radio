@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlbumCard } from "@/components/AlbumCard";
 import type { Album, AlbumsResponse } from "@/types/api";
 
@@ -20,6 +20,13 @@ export function AlbumList({
   const [hasMore, setHasMore] = useState(initialPagination.has_more);
   const [nextCursor, setNextCursor] = useState(initialPagination.next_cursor);
   const [loading, setLoading] = useState(false);
+
+  // Reset state when genre changes (new initial data from server)
+  useEffect(() => {
+    setAlbums(initialAlbums);
+    setHasMore(initialPagination.has_more);
+    setNextCursor(initialPagination.next_cursor);
+  }, [initialAlbums, initialPagination]);
 
   const loadMore = async () => {
     if (!hasMore || !nextCursor || loading) return;
