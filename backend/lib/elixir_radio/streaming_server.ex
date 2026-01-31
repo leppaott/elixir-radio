@@ -166,6 +166,7 @@ defmodule ElixirRadio.StreamingServer do
         id: track.id,
         title: track.title,
         track_number: track.track_number,
+        alt_track_number: track.alt_track_number,
         duration_seconds: track.duration_seconds,
         sample_duration: track.sample_duration,
         upload_status: track.upload_status,
