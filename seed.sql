@@ -88,34 +88,28 @@ INSERT INTO albums (title, artist_id, genre_id, release_year, cover_image_url, d
 
 INSERT INTO tracks (title, album_id, track_number, duration_seconds, alt_track_number, upload_status, inserted_at, updated_at) VALUES
 -- Electronic Dreams (Album 1) - 5 tracks with vinyl sides
--- Side A
 ('Music is the Danger (Club edit)', 1, 1, 248, 'A1', 'pending', NOW(), NOW()),
 ('Midnight Drive', 1, 2, 312, 'A2', 'pending', NOW(), NOW()),
 ('Pulse', 1, 3, 275, 'A3', 'pending', NOW(), NOW()),
--- Side B
 ('Digital Waves', 1, 4, 298, 'B1', 'pending', NOW(), NOW()),
 ('Electric Dreams', 1, 5, 334, 'B2', 'pending', NOW(), NOW()),
 
 -- Neon Nights (Album 2) - 7 tracks with vinyl sides
--- Side A
 ('City Lights', 2, 1, 294, 'A1', 'pending', NOW(), NOW()),
 ('Neon Dreams', 2, 2, 268, 'A2', 'pending', NOW(), NOW()),
 ('After Hours', 2, 3, 301, 'A3', 'pending', NOW(), NOW()),
 ('Midnight Runner', 2, 4, 287, 'A4', 'pending', NOW(), NOW()),
--- Side B
 ('Urban Glow', 2, 5, 312, 'B1', 'pending', NOW(), NOW()),
 ('Night Drive', 2, 6, 289, 'B2', 'pending', NOW(), NOW()),
 ('Dawn Breaks', 2, 7, 256, 'B3', 'pending', NOW(), NOW()),
 
 -- Deep in the Night (Album 3) - 11 tracks with vinyl sides
--- Side A
 ('Deep Groove', 3, 1, 378, 'A1', 'pending', NOW(), NOW()),
 ('Basement Vibes', 3, 2, 421, 'A2', 'pending', NOW(), NOW()),
 ('Sunrise', 3, 3, 356, 'A3', 'pending', NOW(), NOW()),
 ('Soul Movement', 3, 4, 389, 'A4', 'pending', NOW(), NOW()),
 ('Late Night', 3, 5, 398, 'A5', 'pending', NOW(), NOW()),
 ('Deep Waters', 3, 6, 367, 'A6', 'pending', NOW(), NOW()),
--- Side B
 ('House Feeling', 3, 7, 412, 'B1', 'pending', NOW(), NOW()),
 ('Groove Theory', 3, 8, 387, 'B2', 'pending', NOW(), NOW()),
 ('Night Session', 3, 9, 445, 'B3', 'pending', NOW(), NOW()),
@@ -123,394 +117,340 @@ INSERT INTO tracks (title, album_id, track_number, duration_seconds, alt_track_n
 ('Final Dance', 3, 11, 401, 'B5', 'pending', NOW(), NOW()),
 
 -- Basement Sessions (Album 4) - 5 tracks
--- Side A
 ('Underground', 4, 1, 392, 'A1', 'pending', NOW(), NOW()),
 ('Chicago Shuffle', 4, 2, 367, 'A2', 'pending', NOW(), NOW()),
 ('Basement Love', 4, 3, 378, 'A3', 'pending', NOW(), NOW()),
--- Side B
 ('Deep Down', 4, 4, 398, 'B1', 'pending', NOW(), NOW()),
 ('House Rules', 4, 5, 356, 'B2', 'pending', NOW(), NOW()),
 
 -- Chicago Nights (Album 5) - 4 tracks
--- Side A
 ('Progressive Dreams', 5, 1, 445, NULL, 'pending', NOW(), NOW()),
 ('Loop District', 5, 2, 398, NULL, 'pending', NOW(), NOW()),
--- Side B
 ('Nightlife', 5, 3, 412, NULL, 'pending', NOW(), NOW()),
 ('Chicago After Dark', 5, 4, 389, NULL, 'pending', NOW(), NOW()),
 
 -- Warehouse Tales (Album 6) - 5 tracks
--- Side A
-('Classic Groove', 6, 1, 354, 'pending', NOW(), NOW()),
-('Dance Floor Memory', 6, 2, 387, 'pending', NOW(), NOW()),
-('Warehouse Anthem', 6, 3, 367, 'pending', NOW(), NOW()),
--- Side B
-('Late Night Session', 6, 4, 398, 'pending', NOW(), NOW()),
-('Final Call', 6, 5, 378, 'pending', NOW(), NOW()),
+('Classic Groove', 6, 1, 354, NULL, 'pending', NOW(), NOW()),
+('Dance Floor Memory', 6, 2, 387, NULL, 'pending', NOW(), NOW()),
+('Warehouse Anthem', 6, 3, 367, NULL, 'pending', NOW(), NOW()),
+('Late Night Session', 6, 4, 398, NULL, 'pending', NOW(), NOW()),
+('Final Call', 6, 5, 378, NULL, 'pending', NOW(), NOW()),
 
 -- Analog Dreams (Album 7) - 4 tracks
--- Side A
-('Bass Drop', 7, 1, 289, 'pending', NOW(), NOW()),
-('Heavy Groove', 7, 2, 312, 'pending', NOW(), NOW()),
--- Side B
-('Sub Frequencies', 7, 3, 298, 'pending', NOW(), NOW()),
-('Analog Soul', 7, 4, 334, 'pending', NOW(), NOW()),
+('Bass Drop', 7, 1, 289, NULL, 'pending', NOW(), NOW()),
+('Heavy Groove', 7, 2, 312, NULL, 'pending', NOW(), NOW()),
+('Sub Frequencies', 7, 3, 298, NULL, 'pending', NOW(), NOW()),
+('Analog Soul', 7, 4, 334, NULL, 'pending', NOW(), NOW()),
 
 -- Industrial Complex (Album 8) - 5 tracks
--- Side A
-('Berlin Calling', 8, 1, 456, 'pending', NOW(), NOW()),
-('Factory Reset', 8, 2, 423, 'pending', NOW(), NOW()),
-('Industrial Love', 8, 3, 398, 'pending', NOW(), NOW()),
--- Side B
-('Complex Rhythms', 8, 4, 412, 'pending', NOW(), NOW()),
-('Berlin Nights', 8, 5, 445, 'pending', NOW(), NOW()),
+('Berlin Calling', 8, 1, 456, NULL, 'pending', NOW(), NOW()),
+('Factory Reset', 8, 2, 423, NULL, 'pending', NOW(), NOW()),
+('Industrial Love', 8, 3, 398, NULL, 'pending', NOW(), NOW()),
+('Complex Rhythms', 8, 4, 412, NULL, 'pending', NOW(), NOW()),
+('Berlin Nights', 8, 5, 445, NULL, 'pending', NOW(), NOW()),
 
 -- Factory Floor (Album 9) - 4 tracks
--- Side A
-('Raw Energy', 9, 1, 412, 'pending', NOW(), NOW()),
-('Machine Soul', 9, 2, 445, 'pending', NOW(), NOW()),
--- Side B
-('Factory Life', 9, 3, 389, 'pending', NOW(), NOW()),
-('Industrial Beat', 9, 4, 423, 'pending', NOW(), NOW()),
+('Raw Energy', 9, 1, 412, NULL, 'pending', NOW(), NOW()),
+('Machine Soul', 9, 2, 445, NULL, 'pending', NOW(), NOW()),
+('Factory Life', 9, 3, 389, NULL, 'pending', NOW(), NOW()),
+('Industrial Beat', 9, 4, 423, NULL, 'pending', NOW(), NOW()),
 
 -- Motor City Soul (Album 10) - 5 tracks
--- Side A
-('Detroit Techno', 10, 1, 387, 'pending', NOW(), NOW()),
-('Motor Rhythm', 10, 2, 401, 'pending', NOW(), NOW()),
-('City Pulse', 10, 3, 378, 'pending', NOW(), NOW()),
--- Side B
-('Motor Love', 10, 4, 412, 'pending', NOW(), NOW()),
-('Detroit After Dark', 10, 5, 398, 'pending', NOW(), NOW()),
+('Detroit Techno', 10, 1, 387, NULL, 'pending', NOW(), NOW()),
+('Motor Rhythm', 10, 2, 401, NULL, 'pending', NOW(), NOW()),
+('City Pulse', 10, 3, 378, NULL, 'pending', NOW(), NOW()),
+('Motor Love', 10, 4, 412, NULL, 'pending', NOW(), NOW()),
+('Detroit After Dark', 10, 5, 398, NULL, 'pending', NOW(), NOW()),
 
 -- Electric Pulse (Album 11) - 4 tracks
--- Side A
-('Pure Techno', 11, 1, 434, 'pending', NOW(), NOW()),
-('Electric Dreams', 11, 2, 412, 'pending', NOW(), NOW()),
--- Side B
-('Pulse Wave', 11, 3, 398, 'pending', NOW(), NOW()),
-('Energy Flow', 11, 4, 423, 'pending', NOW(), NOW()),
+('Pure Techno', 11, 1, 434, NULL, 'pending', NOW(), NOW()),
+('Electric Dreams', 11, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Pulse Wave', 11, 3, 398, NULL, 'pending', NOW(), NOW()),
+('Energy Flow', 11, 4, 423, NULL, 'pending', NOW(), NOW()),
 
 -- Acid Test (Album 12) - 5 tracks
--- Side A
-('Acid Rain', 12, 1, 367, 'pending', NOW(), NOW()),
-('303 Love', 12, 2, 389, 'pending', NOW(), NOW()),
-('Mind Expansion', 12, 3, 423, 'pending', NOW(), NOW()),
--- Side B
-('Acid Journey', 12, 4, 398, 'pending', NOW(), NOW()),
-('Test Complete', 12, 5, 378, 'pending', NOW(), NOW()),
+('Acid Rain', 12, 1, 367, NULL, 'pending', NOW(), NOW()),
+('303 Love', 12, 2, 389, NULL, 'pending', NOW(), NOW()),
+('Mind Expansion', 12, 3, 423, NULL, 'pending', NOW(), NOW()),
+('Acid Journey', 12, 4, 398, NULL, 'pending', NOW(), NOW()),
+('Test Complete', 12, 5, 378, NULL, 'pending', NOW(), NOW()),
 
 -- West Side Story (Album 13) - 4 tracks
--- Side A
-('West Coast Anthem', 13, 1, 198, 'pending', NOW(), NOW()),
-('California Dreams', 13, 2, 223, 'pending', NOW(), NOW()),
--- Side B
-('Sunset Boulevard', 13, 3, 212, 'pending', NOW(), NOW()),
-('LA Nights', 13, 4, 234, 'pending', NOW(), NOW()),
+('West Coast Anthem', 13, 1, 198, NULL, 'pending', NOW(), NOW()),
+('California Dreams', 13, 2, 223, NULL, 'pending', NOW(), NOW()),
+('Sunset Boulevard', 13, 3, 212, NULL, 'pending', NOW(), NOW()),
+('LA Nights', 13, 4, 234, NULL, 'pending', NOW(), NOW()),
 
 -- Street Chronicles (Album 14) - 5 tracks
--- Side A
-('Street Life', 14, 1, 201, 'pending', NOW(), NOW()),
-('Urban Tales', 14, 2, 189, 'pending', NOW(), NOW()),
-('Block Party', 14, 3, 245, 'pending', NOW(), NOW()),
--- Side B
-('Street Wisdom', 14, 4, 223, 'pending', NOW(), NOW()),
-('Chronicles End', 14, 5, 198, 'pending', NOW(), NOW()),
+('Street Life', 14, 1, 201, NULL, 'pending', NOW(), NOW()),
+('Urban Tales', 14, 2, 189, NULL, 'pending', NOW(), NOW()),
+('Block Party', 14, 3, 245, NULL, 'pending', NOW(), NOW()),
+('Street Wisdom', 14, 4, 223, NULL, 'pending', NOW(), NOW()),
+('Chronicles End', 14, 5, 198, NULL, 'pending', NOW(), NOW()),
 
 -- Underground Tapes (Album 15) - 4 tracks
--- Side A
-('Raw Beats', 15, 1, 178, 'pending', NOW(), NOW()),
-('Basement Cypher', 15, 2, 234, 'pending', NOW(), NOW()),
--- Side B
-('Old School Flow', 15, 3, 212, 'pending', NOW(), NOW()),
-('Underground Legacy', 15, 4, 198, 'pending', NOW(), NOW()),
+('Raw Beats', 15, 1, 178, NULL, 'pending', NOW(), NOW()),
+('Basement Cypher', 15, 2, 234, NULL, 'pending', NOW(), NOW()),
+('Old School Flow', 15, 3, 212, NULL, 'pending', NOW(), NOW()),
+('Underground Legacy', 15, 4, 198, NULL, 'pending', NOW(), NOW()),
 
 -- City Lights Vol. 1 (Album 16) - 5 tracks
--- Side A
-('Streetlights', 16, 1, 198, 'pending', NOW(), NOW()),
-('Metro Nights', 16, 2, 223, 'pending', NOW(), NOW()),
-('Urban Glow', 16, 3, 212, 'pending', NOW(), NOW()),
--- Side B
-('City Dreams', 16, 4, 234, 'pending', NOW(), NOW()),
-('Bright Lights', 16, 5, 201, 'pending', NOW(), NOW()),
+('Streetlights', 16, 1, 198, NULL, 'pending', NOW(), NOW()),
+('Metro Nights', 16, 2, 223, NULL, 'pending', NOW(), NOW()),
+('Urban Glow', 16, 3, 212, NULL, 'pending', NOW(), NOW()),
+('City Dreams', 16, 4, 234, NULL, 'pending', NOW(), NOW()),
+('Bright Lights', 16, 5, 201, NULL, 'pending', NOW(), NOW()),
 
 -- Conscious Mind (Album 17) - 4 tracks
--- Side A
-('Wake Up Call', 17, 1, 256, 'pending', NOW(), NOW()),
-('Social Commentary', 17, 2, 289, 'pending', NOW(), NOW()),
--- Side B
-('Better Days', 17, 3, 267, 'pending', NOW(), NOW()),
-('Conscious Flow', 17, 4, 245, 'pending', NOW(), NOW()),
+('Wake Up Call', 17, 1, 256, NULL, 'pending', NOW(), NOW()),
+('Social Commentary', 17, 2, 289, NULL, 'pending', NOW(), NOW()),
+('Better Days', 17, 3, 267, NULL, 'pending', NOW(), NOW()),
+('Conscious Flow', 17, 4, 245, NULL, 'pending', NOW(), NOW()),
 
 -- Midnight Sessions (Album 18) - 5 tracks
--- Side A
-('Blue Note', 18, 1, 342, 'pending', NOW(), NOW()),
-('Swing Time', 18, 2, 286, 'pending', NOW(), NOW()),
-('Midnight Groove', 18, 3, 367, 'pending', NOW(), NOW()),
--- Side B
-('Jazz Session', 18, 4, 312, 'pending', NOW(), NOW()),
-('Late Night Blues', 18, 5, 298, 'pending', NOW(), NOW()),
+('Blue Note', 18, 1, 342, NULL, 'pending', NOW(), NOW()),
+('Swing Time', 18, 2, 286, NULL, 'pending', NOW(), NOW()),
+('Midnight Groove', 18, 3, 367, NULL, 'pending', NOW(), NOW()),
+('Jazz Session', 18, 4, 312, NULL, 'pending', NOW(), NOW()),
+('Late Night Blues', 18, 5, 298, NULL, 'pending', NOW(), NOW()),
 
 -- Fusion Experiments (Album 19) - 4 tracks
--- Side A
-('Fusion Dance', 19, 1, 423, 'pending', NOW(), NOW()),
-('Electric Jazz', 19, 2, 398, 'pending', NOW(), NOW()),
--- Side B
-('Experimental Groove', 19, 3, 412, 'pending', NOW(), NOW()),
-('Fusion Complete', 19, 4, 389, 'pending', NOW(), NOW()),
+('Fusion Dance', 19, 1, 423, NULL, 'pending', NOW(), NOW()),
+('Electric Jazz', 19, 2, 398, NULL, 'pending', NOW(), NOW()),
+('Experimental Groove', 19, 3, 412, NULL, 'pending', NOW(), NOW()),
+('Fusion Complete', 19, 4, 389, NULL, 'pending', NOW(), NOW()),
 
 -- Smooth Sailing (Album 20) - 5 tracks
--- Side A
-('Easy Listening', 20, 1, 312, 'pending', NOW(), NOW()),
-('Smooth Operator', 20, 2, 289, 'pending', NOW(), NOW()),
-('Gentle Waves', 20, 3, 334, 'pending', NOW(), NOW()),
--- Side B
-('Sailing Away', 20, 4, 298, 'pending', NOW(), NOW()),
-('Calm Waters', 20, 5, 312, 'pending', NOW(), NOW()),
+('Easy Listening', 20, 1, 312, NULL, 'pending', NOW(), NOW()),
+('Smooth Operator', 20, 2, 289, NULL, 'pending', NOW(), NOW()),
+('Gentle Waves', 20, 3, 334, NULL, 'pending', NOW(), NOW()),
+('Sailing Away', 20, 4, 298, NULL, 'pending', NOW(), NOW()),
+('Calm Waters', 20, 5, 312, NULL, 'pending', NOW(), NOW()),
 
 -- Blue Hour (Album 21) - 4 tracks
--- Side A
-('All Blues', 21, 1, 378, 'pending', NOW(), NOW()),
-('Take Five', 21, 2, 298, 'pending', NOW(), NOW()),
--- Side B
-('Blue Mood', 21, 3, 334, 'pending', NOW(), NOW()),
-('Hour Glass', 21, 4, 312, 'pending', NOW(), NOW()),
+('All Blues', 21, 1, 378, NULL, 'pending', NOW(), NOW()),
+('Take Five', 21, 2, 298, NULL, 'pending', NOW(), NOW()),
+('Blue Mood', 21, 3, 334, NULL, 'pending', NOW(), NOW()),
+('Hour Glass', 21, 4, 312, NULL, 'pending', NOW(), NOW()),
 
 -- Highway Freedom (Album 22) - 5 tracks
--- Side A
-('Born to Run Free', 22, 1, 267, 'pending', NOW(), NOW()),
-('Thunder Road', 22, 2, 298, 'pending', NOW(), NOW()),
-('Freedom Highway', 22, 3, 312, 'pending', NOW(), NOW()),
--- Side B
-('Open Road', 22, 4, 289, 'pending', NOW(), NOW()),
-('Journey Ends', 22, 5, 278, 'pending', NOW(), NOW()),
+('Born to Run Free', 22, 1, 267, NULL, 'pending', NOW(), NOW()),
+('Thunder Road', 22, 2, 298, NULL, 'pending', NOW(), NOW()),
+('Freedom Highway', 22, 3, 312, NULL, 'pending', NOW(), NOW()),
+('Open Road', 22, 4, 289, NULL, 'pending', NOW(), NOW()),
+('Journey Ends', 22, 5, 278, NULL, 'pending', NOW(), NOW()),
 
 -- Thunder & Lightning (Album 23) - 4 tracks
--- Side A
-('Electric Storm', 23, 1, 289, 'pending', NOW(), NOW()),
-('Heavy Thunder', 23, 2, 334, 'pending', NOW(), NOW()),
--- Side B
-('Lightning Strike', 23, 3, 298, 'pending', NOW(), NOW()),
-('Storm Passes', 23, 4, 312, 'pending', NOW(), NOW()),
+('Electric Storm', 23, 1, 289, NULL, 'pending', NOW(), NOW()),
+('Heavy Thunder', 23, 2, 334, NULL, 'pending', NOW(), NOW()),
+('Lightning Strike', 23, 3, 298, NULL, 'pending', NOW(), NOW()),
+('Storm Passes', 23, 4, 312, NULL, 'pending', NOW(), NOW()),
 
 -- Live at Red Rocks (Album 24) - 5 tracks
--- Side A
-('Red Rock Anthem', 24, 1, 378, 'pending', NOW(), NOW()),
-('Mountain High', 24, 2, 401, 'pending', NOW(), NOW()),
-('Canyon Echo', 24, 3, 367, 'pending', NOW(), NOW()),
--- Side B
-('Rocks and Rolls', 24, 4, 389, 'pending', NOW(), NOW()),
-('Encore', 24, 5, 423, 'pending', NOW(), NOW()),
+('Red Rock Anthem', 24, 1, 378, NULL, 'pending', NOW(), NOW()),
+('Mountain High', 24, 2, 401, NULL, 'pending', NOW(), NOW()),
+('Canyon Echo', 24, 3, 367, NULL, 'pending', NOW(), NOW()),
+('Rocks and Rolls', 24, 4, 389, NULL, 'pending', NOW(), NOW()),
+('Encore', 24, 5, 423, NULL, 'pending', NOW(), NOW()),
 
 -- Amplified (Album 25) - 4 tracks
--- Side A
-('Turn It Up', 25, 1, 245, 'pending', NOW(), NOW()),
-('Rock Steady', 25, 2, 267, 'pending', NOW(), NOW()),
--- Side B
-('Power Chord', 25, 3, 289, 'pending', NOW(), NOW()),
-('Maximum Volume', 25, 4, 298, 'pending', NOW(), NOW()),
+('Turn It Up', 25, 1, 245, NULL, 'pending', NOW(), NOW()),
+('Rock Steady', 25, 2, 267, NULL, 'pending', NOW(), NOW()),
+('Power Chord', 25, 3, 289, NULL, 'pending', NOW(), NOW()),
+('Maximum Volume', 25, 4, 298, NULL, 'pending', NOW(), NOW()),
 
 -- Synthwave Journey (Album 26) - 5 tracks
--- Side A
-('Retro Drive', 26, 1, 256, 'pending', NOW(), NOW()),
-('80s Dreams', 26, 2, 278, 'pending', NOW(), NOW()),
-('Neon Highway', 26, 3, 301, 'pending', NOW(), NOW()),
--- Side B
-('Synth Wave', 26, 4, 289, 'pending', NOW(), NOW()),
-('Journey Complete', 26, 5, 267, 'pending', NOW(), NOW()),
+('Retro Drive', 26, 1, 256, NULL, 'pending', NOW(), NOW()),
+('80s Dreams', 26, 2, 278, NULL, 'pending', NOW(), NOW()),
+('Neon Highway', 26, 3, 301, NULL, 'pending', NOW(), NOW()),
+('Synth Wave', 26, 4, 289, NULL, 'pending', NOW(), NOW()),
+('Journey Complete', 26, 5, 267, NULL, 'pending', NOW(), NOW()),
 
 -- Dance Floor Killers (Album 27) - 4 tracks
--- Side A
-('Party Time', 27, 1, 367, 'pending', NOW(), NOW()),
-('Dance All Night', 27, 2, 389, 'pending', NOW(), NOW()),
--- Side B
-('Floor Filler', 27, 3, 378, 'pending', NOW(), NOW()),
-('Last Dance', 27, 4, 398, 'pending', NOW(), NOW()),
+('Party Time', 27, 1, 367, NULL, 'pending', NOW(), NOW()),
+('Dance All Night', 27, 2, 389, NULL, 'pending', NOW(), NOW()),
+('Floor Filler', 27, 3, 378, NULL, 'pending', NOW(), NOW()),
+('Last Dance', 27, 4, 398, NULL, 'pending', NOW(), NOW()),
 
 -- Techno Cathedral (Album 28) - 5 tracks
--- Side A
-('Sacred Beats', 28, 1, 456, 'pending', NOW(), NOW()),
-('Spiritual Journey', 28, 2, 478, 'pending', NOW(), NOW()),
-('Cathedral Bells', 28, 3, 423, 'pending', NOW(), NOW()),
--- Side B
-('Divine Rhythm', 28, 4, 445, 'pending', NOW(), NOW()),
-('Ascension', 28, 5, 467, 'pending', NOW(), NOW()),
+('Sacred Beats', 28, 1, 456, NULL, 'pending', NOW(), NOW()),
+('Spiritual Journey', 28, 2, 478, NULL, 'pending', NOW(), NOW()),
+('Cathedral Bells', 28, 3, 423, NULL, 'pending', NOW(), NOW()),
+('Divine Rhythm', 28, 4, 445, NULL, 'pending', NOW(), NOW()),
+('Ascension', 28, 5, 467, NULL, 'pending', NOW(), NOW()),
 
 -- Hip Hop Chronicles (Album 29) - 4 tracks
--- Side A
-('Old School', 29, 1, 198, 'pending', NOW(), NOW()),
-('New School', 29, 2, 212, 'pending', NOW(), NOW()),
--- Side B
-('Evolution', 29, 3, 234, 'pending', NOW(), NOW()),
-('Legacy', 29, 4, 223, 'pending', NOW(), NOW()),
+('Old School', 29, 1, 198, NULL, 'pending', NOW(), NOW()),
+('New School', 29, 2, 212, NULL, 'pending', NOW(), NOW()),
+('Evolution', 29, 3, 234, NULL, 'pending', NOW(), NOW()),
+('Legacy', 29, 4, 223, NULL, 'pending', NOW(), NOW()),
 
 -- Jazz After Dark (Album 30) - 5 tracks
--- Side A
-('Midnight Blue', 30, 1, 389, 'pending', NOW(), NOW()),
-('After Hours Jazz', 30, 2, 412, 'pending', NOW(), NOW()),
-('Dark Nights', 30, 3, 367, 'pending', NOW(), NOW()),
--- Side B
-('Jazz Dreams', 30, 4, 398, 'pending', NOW(), NOW()),
-('Dawn Arrives', 30, 5, 378, 'pending', NOW(), NOW()),
+('Midnight Blue', 30, 1, 389, NULL, 'pending', NOW(), NOW()),
+('After Hours Jazz', 30, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Dark Nights', 30, 3, 367, NULL, 'pending', NOW(), NOW()),
+('Jazz Dreams', 30, 4, 398, NULL, 'pending', NOW(), NOW()),
+('Dawn Arrives', 30, 5, 378, NULL, 'pending', NOW(), NOW()),
 
 -- Albums 31-55 with 4-5 tracks each
 -- Vinyl Dreams (Album 31) - 4 tracks
-('Vinyl Love', 31, 1, 298, 'pending', NOW(), NOW()),
-('Analog Soul', 31, 2, 312, 'pending', NOW(), NOW()),
-('Needle Drop', 31, 3, 289, 'pending', NOW(), NOW()),
-('Spinning Dreams', 31, 4, 334, 'pending', NOW(), NOW()),
+('Vinyl Love', 31, 1, 298, NULL, 'pending', NOW(), NOW()),
+('Analog Soul', 31, 2, 312, NULL, 'pending', NOW(), NOW()),
+('Needle Drop', 31, 3, 289, NULL, 'pending', NOW(), NOW()),
+('Spinning Dreams', 31, 4, 334, NULL, 'pending', NOW(), NOW()),
 
 -- Groove Machine (Album 32) - 5 tracks
-('Machine Funk', 32, 1, 367, 'pending', NOW(), NOW()),
-('Groove Theory', 32, 2, 389, 'pending', NOW(), NOW()),
-('Funky Beat', 32, 3, 378, 'pending', NOW(), NOW()),
-('Machine Love', 32, 4, 398, 'pending', NOW(), NOW()),
-('Final Groove', 32, 5, 367, 'pending', NOW(), NOW()),
+('Machine Funk', 32, 1, 367, NULL, 'pending', NOW(), NOW()),
+('Groove Theory', 32, 2, 389, NULL, 'pending', NOW(), NOW()),
+('Funky Beat', 32, 3, 378, NULL, 'pending', NOW(), NOW()),
+('Machine Love', 32, 4, 398, NULL, 'pending', NOW(), NOW()),
+('Final Groove', 32, 5, 367, NULL, 'pending', NOW(), NOW()),
 
 -- Warehouse Anthems (Album 33) - 4 tracks
-('Warehouse Party', 33, 1, 398, 'pending', NOW(), NOW()),
-('Anthem One', 33, 2, 412, 'pending', NOW(), NOW()),
-('Dance Unite', 33, 3, 389, 'pending', NOW(), NOW()),
-('Warehouse Closing', 33, 4, 423, 'pending', NOW(), NOW()),
+('Warehouse Party', 33, 1, 398, NULL, 'pending', NOW(), NOW()),
+('Anthem One', 33, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Dance Unite', 33, 3, 389, NULL, 'pending', NOW(), NOW()),
+('Warehouse Closing', 33, 4, 423, NULL, 'pending', NOW(), NOW()),
 
 -- Underground Sound (Album 34) - 5 tracks
-('Underground Bass', 34, 1, 445, 'pending', NOW(), NOW()),
-('Sound System', 34, 2, 423, 'pending', NOW(), NOW()),
-('Deep Underground', 34, 3, 456, 'pending', NOW(), NOW()),
-('Raw Sound', 34, 4, 434, 'pending', NOW(), NOW()),
-('Underground Anthem', 34, 5, 467, 'pending', NOW(), NOW()),
+('Underground Bass', 34, 1, 445, NULL, 'pending', NOW(), NOW()),
+('Sound System', 34, 2, 423, NULL, 'pending', NOW(), NOW()),
+('Deep Underground', 34, 3, 456, NULL, 'pending', NOW(), NOW()),
+('Raw Sound', 34, 4, 434, NULL, 'pending', NOW(), NOW()),
+('Underground Anthem', 34, 5, 467, NULL, 'pending', NOW(), NOW()),
 
 -- Minimal Tech (Album 35) - 4 tracks
-('Minimal Beat', 35, 1, 398, 'pending', NOW(), NOW()),
-('Tech Soul', 35, 2, 412, 'pending', NOW(), NOW()),
-('Less Is More', 35, 3, 423, 'pending', NOW(), NOW()),
-('Minimal Love', 35, 4, 389, 'pending', NOW(), NOW()),
+('Minimal Beat', 35, 1, 398, NULL, 'pending', NOW(), NOW()),
+('Tech Soul', 35, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Less Is More', 35, 3, 423, NULL, 'pending', NOW(), NOW()),
+('Minimal Love', 35, 4, 389, NULL, 'pending', NOW(), NOW()),
 
 -- Boom Bap Chronicles (Album 36) - 5 tracks
-('Boom Bap Beat', 36, 1, 198, 'pending', NOW(), NOW()),
-('Classic Flow', 36, 2, 212, 'pending', NOW(), NOW()),
-('90s Vibes', 36, 3, 234, 'pending', NOW(), NOW()),
-('Hip Hop Soul', 36, 4, 223, 'pending', NOW(), NOW()),
-('Bap Legacy', 36, 5, 201, 'pending', NOW(), NOW()),
+('Boom Bap Beat', 36, 1, 198, NULL, 'pending', NOW(), NOW()),
+('Classic Flow', 36, 2, 212, NULL, 'pending', NOW(), NOW()),
+('90s Vibes', 36, 3, 234, NULL, 'pending', NOW(), NOW()),
+('Hip Hop Soul', 36, 4, 223, NULL, 'pending', NOW(), NOW()),
+('Bap Legacy', 36, 5, 201, NULL, 'pending', NOW(), NOW()),
 
 -- Jazz Noir (Album 37) - 4 tracks
-('Dark Jazz', 37, 1, 389, 'pending', NOW(), NOW()),
-('Noir Nights', 37, 2, 412, 'pending', NOW(), NOW()),
-('Mystery', 37, 3, 398, 'pending', NOW(), NOW()),
-('Film Noir', 37, 4, 423, 'pending', NOW(), NOW()),
+('Dark Jazz', 37, 1, 389, NULL, 'pending', NOW(), NOW()),
+('Noir Nights', 37, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Mystery', 37, 3, 398, NULL, 'pending', NOW(), NOW()),
+('Film Noir', 37, 4, 423, NULL, 'pending', NOW(), NOW()),
 
 -- Rock Solid (Album 38) - 5 tracks
-('Solid Ground', 38, 1, 289, 'pending', NOW(), NOW()),
-('Rock Foundation', 38, 2, 312, 'pending', NOW(), NOW()),
-('Heavy Stone', 38, 3, 298, 'pending', NOW(), NOW()),
-('Solid Beat', 38, 4, 334, 'pending', NOW(), NOW()),
-('Rock On', 38, 5, 278, 'pending', NOW(), NOW()),
+('Solid Ground', 38, 1, 289, NULL, 'pending', NOW(), NOW()),
+('Rock Foundation', 38, 2, 312, NULL, 'pending', NOW(), NOW()),
+('Heavy Stone', 38, 3, 298, NULL, 'pending', NOW(), NOW()),
+('Solid Beat', 38, 4, 334, NULL, 'pending', NOW(), NOW()),
+('Rock On', 38, 5, 278, NULL, 'pending', NOW(), NOW()),
 
 -- Electronic Sunrise (Album 39) - 4 tracks
-('Dawn Breaking', 39, 1, 298, 'pending', NOW(), NOW()),
-('Morning Light', 39, 2, 312, 'pending', NOW(), NOW()),
-('Sunrise Dance', 39, 3, 289, 'pending', NOW(), NOW()),
-('New Day', 39, 4, 334, 'pending', NOW(), NOW()),
+('Dawn Breaking', 39, 1, 298, NULL, 'pending', NOW(), NOW()),
+('Morning Light', 39, 2, 312, NULL, 'pending', NOW(), NOW()),
+('Sunrise Dance', 39, 3, 289, NULL, 'pending', NOW(), NOW()),
+('New Day', 39, 4, 334, NULL, 'pending', NOW(), NOW()),
 
 -- Deep House Essentials (Album 40) - 5 tracks
-('Essential Groove', 40, 1, 398, 'pending', NOW(), NOW()),
-('Deep Essentials', 40, 2, 412, 'pending', NOW(), NOW()),
-('House Foundation', 40, 3, 389, 'pending', NOW(), NOW()),
-('Essential Beat', 40, 4, 423, 'pending', NOW(), NOW()),
-('Deep Love', 40, 5, 398, 'pending', NOW(), NOW()),
+('Essential Groove', 40, 1, 398, NULL, 'pending', NOW(), NOW()),
+('Deep Essentials', 40, 2, 412, NULL, 'pending', NOW(), NOW()),
+('House Foundation', 40, 3, 389, NULL, 'pending', NOW(), NOW()),
+('Essential Beat', 40, 4, 423, NULL, 'pending', NOW(), NOW()),
+('Deep Love', 40, 5, 398, NULL, 'pending', NOW(), NOW()),
 
 -- Techno Pulse (Album 41) - 4 tracks
-('Pulse Beat', 41, 1, 434, 'pending', NOW(), NOW()),
-('Techno Heart', 41, 2, 445, 'pending', NOW(), NOW()),
-('Pulse Wave', 41, 3, 423, 'pending', NOW(), NOW()),
-('Final Pulse', 41, 4, 456, 'pending', NOW(), NOW()),
+('Pulse Beat', 41, 1, 434, NULL, 'pending', NOW(), NOW()),
+('Techno Heart', 41, 2, 445, NULL, 'pending', NOW(), NOW()),
+('Pulse Wave', 41, 3, 423, NULL, 'pending', NOW(), NOW()),
+('Final Pulse', 41, 4, 456, NULL, 'pending', NOW(), NOW()),
 
 -- Urban Stories (Album 42) - 5 tracks
-('City Tales', 42, 1, 198, 'pending', NOW(), NOW()),
-('Urban Life', 42, 2, 212, 'pending', NOW(), NOW()),
-('Street Stories', 42, 3, 234, 'pending', NOW(), NOW()),
-('Urban Legend', 42, 4, 223, 'pending', NOW(), NOW()),
-('Story Ends', 42, 5, 201, 'pending', NOW(), NOW()),
+('City Tales', 42, 1, 198, NULL, 'pending', NOW(), NOW()),
+('Urban Life', 42, 2, 212, NULL, 'pending', NOW(), NOW()),
+('Street Stories', 42, 3, 234, NULL, 'pending', NOW(), NOW()),
+('Urban Legend', 42, 4, 223, NULL, 'pending', NOW(), NOW()),
+('Story Ends', 42, 5, 201, NULL, 'pending', NOW(), NOW()),
 
 -- Jazz Standards (Album 43) - 4 tracks
-('Standard One', 43, 1, 367, 'pending', NOW(), NOW()),
-('Classic Jazz', 43, 2, 389, 'pending', NOW(), NOW()),
-('Time Standard', 43, 3, 398, 'pending', NOW(), NOW()),
-('Jazz Classic', 43, 4, 412, 'pending', NOW(), NOW()),
+('Standard One', 43, 1, 367, NULL, 'pending', NOW(), NOW()),
+('Classic Jazz', 43, 2, 389, NULL, 'pending', NOW(), NOW()),
+('Time Standard', 43, 3, 398, NULL, 'pending', NOW(), NOW()),
+('Jazz Classic', 43, 4, 412, NULL, 'pending', NOW(), NOW()),
 
 -- Rock Revolution (Album 44) - 5 tracks
-('Revolution Start', 44, 1, 289, 'pending', NOW(), NOW()),
-('Rebel Yell', 44, 2, 312, 'pending', NOW(), NOW()),
-('Revolutionary', 44, 3, 298, 'pending', NOW(), NOW()),
-('Rock Rebel', 44, 4, 334, 'pending', NOW(), NOW()),
-('Revolution End', 44, 5, 278, 'pending', NOW(), NOW()),
+('Revolution Start', 44, 1, 289, NULL, 'pending', NOW(), NOW()),
+('Rebel Yell', 44, 2, 312, NULL, 'pending', NOW(), NOW()),
+('Revolutionary', 44, 3, 298, NULL, 'pending', NOW(), NOW()),
+('Rock Rebel', 44, 4, 334, NULL, 'pending', NOW(), NOW()),
+('Revolution End', 44, 5, 278, NULL, 'pending', NOW(), NOW()),
 
 -- Ambient Spaces (Album 45) - 4 tracks
-('Space One', 45, 1, 456, 'pending', NOW(), NOW()),
-('Ambient Flow', 45, 2, 478, 'pending', NOW(), NOW()),
-('Deep Space', 45, 3, 445, 'pending', NOW(), NOW()),
-('Ambient Dream', 45, 4, 467, 'pending', NOW(), NOW()),
+('Space One', 45, 1, 456, NULL, 'pending', NOW(), NOW()),
+('Ambient Flow', 45, 2, 478, NULL, 'pending', NOW(), NOW()),
+('Deep Space', 45, 3, 445, NULL, 'pending', NOW(), NOW()),
+('Ambient Dream', 45, 4, 467, NULL, 'pending', NOW(), NOW()),
 
 -- House Nation (Album 46) - 5 tracks
-('Nation United', 46, 1, 398, 'pending', NOW(), NOW()),
-('House Pride', 46, 2, 412, 'pending', NOW(), NOW()),
-('Nation Groove', 46, 3, 389, 'pending', NOW(), NOW()),
-('House Unity', 46, 4, 423, 'pending', NOW(), NOW()),
-('Nation Anthem', 46, 5, 398, 'pending', NOW(), NOW()),
+('Nation United', 46, 1, 398, NULL, 'pending', NOW(), NOW()),
+('House Pride', 46, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Nation Groove', 46, 3, 389, NULL, 'pending', NOW(), NOW()),
+('House Unity', 46, 4, 423, NULL, 'pending', NOW(), NOW()),
+('Nation Anthem', 46, 5, 398, NULL, 'pending', NOW(), NOW()),
 
 -- Techno Warfare (Album 47) - 4 tracks
-('War Beat', 47, 1, 445, 'pending', NOW(), NOW()),
-('Techno Battle', 47, 2, 456, 'pending', NOW(), NOW()),
-('Warfare', 47, 3, 434, 'pending', NOW(), NOW()),
-('Victory Dance', 47, 4, 467, 'pending', NOW(), NOW()),
+('War Beat', 47, 1, 445, NULL, 'pending', NOW(), NOW()),
+('Techno Battle', 47, 2, 456, NULL, 'pending', NOW(), NOW()),
+('Warfare', 47, 3, 434, NULL, 'pending', NOW(), NOW()),
+('Victory Dance', 47, 4, 467, NULL, 'pending', NOW(), NOW()),
 
 -- Lyrical Genius (Album 48) - 5 tracks
-('Genius Flow', 48, 1, 212, 'pending', NOW(), NOW()),
-('Lyrical Art', 48, 2, 234, 'pending', NOW(), NOW()),
-('Word Play', 48, 3, 223, 'pending', NOW(), NOW()),
-('Genius Mind', 48, 4, 245, 'pending', NOW(), NOW()),
-('Lyrical Master', 48, 5, 198, 'pending', NOW(), NOW()),
+('Genius Flow', 48, 1, 212, NULL, 'pending', NOW(), NOW()),
+('Lyrical Art', 48, 2, 234, NULL, 'pending', NOW(), NOW()),
+('Word Play', 48, 3, 223, NULL, 'pending', NOW(), NOW()),
+('Genius Mind', 48, 4, 245, NULL, 'pending', NOW(), NOW()),
+('Lyrical Master', 48, 5, 198, NULL, 'pending', NOW(), NOW()),
 
 -- Bebop Dreams (Album 49) - 4 tracks
-('Bebop Soul', 49, 1, 389, 'pending', NOW(), NOW()),
-('Dream State', 49, 2, 412, 'pending', NOW(), NOW()),
-('Bebop Love', 49, 3, 398, 'pending', NOW(), NOW()),
-('Dreams End', 49, 4, 423, 'pending', NOW(), NOW()),
+('Bebop Soul', 49, 1, 389, NULL, 'pending', NOW(), NOW()),
+('Dream State', 49, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Bebop Love', 49, 3, 398, NULL, 'pending', NOW(), NOW()),
+('Dreams End', 49, 4, 423, NULL, 'pending', NOW(), NOW()),
 
 -- Guitar Heroes (Album 50) - 5 tracks
-('Hero Intro', 50, 1, 298, 'pending', NOW(), NOW()),
-('Guitar Solo', 50, 2, 334, 'pending', NOW(), NOW()),
-('Shred Master', 50, 3, 312, 'pending', NOW(), NOW()),
-('Epic Solo', 50, 4, 356, 'pending', NOW(), NOW()),
-('Hero Finale', 50, 5, 289, 'pending', NOW(), NOW()),
+('Hero Intro', 50, 1, 298, NULL, 'pending', NOW(), NOW()),
+('Guitar Solo', 50, 2, 334, NULL, 'pending', NOW(), NOW()),
+('Shred Master', 50, 3, 312, NULL, 'pending', NOW(), NOW()),
+('Epic Solo', 50, 4, 356, NULL, 'pending', NOW(), NOW()),
+('Hero Finale', 50, 5, 289, NULL, 'pending', NOW(), NOW()),
 
 -- Digital Love (Album 51) - 4 tracks
-('Digital Heart', 51, 1, 298, 'pending', NOW(), NOW()),
-('Electronic Love', 51, 2, 312, 'pending', NOW(), NOW()),
-('Binary Romance', 51, 3, 289, 'pending', NOW(), NOW()),
-('Digital Soul', 51, 4, 334, 'pending', NOW(), NOW()),
+('Digital Heart', 51, 1, 298, NULL, 'pending', NOW(), NOW()),
+('Electronic Love', 51, 2, 312, NULL, 'pending', NOW(), NOW()),
+('Binary Romance', 51, 3, 289, NULL, 'pending', NOW(), NOW()),
+('Digital Soul', 51, 4, 334, NULL, 'pending', NOW(), NOW()),
 
 -- House Therapy (Album 52) - 5 tracks
-('Therapy Session', 52, 1, 398, 'pending', NOW(), NOW()),
-('House Healing', 52, 2, 412, 'pending', NOW(), NOW()),
-('Groove Medicine', 52, 3, 389, 'pending', NOW(), NOW()),
-('Soul Therapy', 52, 4, 423, 'pending', NOW(), NOW()),
-('Healing Dance', 52, 5, 398, 'pending', NOW(), NOW()),
+('Therapy Session', 52, 1, 398, NULL, 'pending', NOW(), NOW()),
+('House Healing', 52, 2, 412, NULL, 'pending', NOW(), NOW()),
+('Groove Medicine', 52, 3, 389, NULL, 'pending', NOW(), NOW()),
+('Soul Therapy', 52, 4, 423, NULL, 'pending', NOW(), NOW()),
+('Healing Dance', 52, 5, 398, NULL, 'pending', NOW(), NOW()),
 
 -- Techno Vision (Album 53) - 4 tracks
-('Vision Quest', 53, 1, 445, 'pending', NOW(), NOW()),
-('Techno Future', 53, 2, 456, 'pending', NOW(), NOW()),
-('Clear Vision', 53, 3, 434, 'pending', NOW(), NOW()),
-('Vision Complete', 53, 4, 467, 'pending', NOW(), NOW()),
+('Vision Quest', 53, 1, 445, NULL, 'pending', NOW(), NOW()),
+('Techno Future', 53, 2, 456, NULL, 'pending', NOW(), NOW()),
+('Clear Vision', 53, 3, 434, NULL, 'pending', NOW(), NOW()),
+('Vision Complete', 53, 4, 467, NULL, 'pending', NOW(), NOW()),
 
 -- Rap Chronicles (Album 54) - 5 tracks
-('Chronicle One', 54, 1, 198, 'pending', NOW(), NOW()),
-('Rap History', 54, 2, 212, 'pending', NOW(), NOW()),
-('Golden Era', 54, 3, 234, 'pending', NOW(), NOW()),
-('Modern Rap', 54, 4, 223, 'pending', NOW(), NOW()),
-('Chronicle End', 54, 5, 201, 'pending', NOW(), NOW()),
+('Chronicle One', 54, 1, 198, NULL, 'pending', NOW(), NOW()),
+('Rap History', 54, 2, 212, NULL, 'pending', NOW(), NOW()),
+('Golden Era', 54, 3, 234, NULL, 'pending', NOW(), NOW()),
+('Modern Rap', 54, 4, 223, NULL, 'pending', NOW(), NOW()),
+('Chronicle End', 54, 5, 201, NULL, 'pending', NOW(), NOW()),
 
 -- Smooth Jazz (Album 55) - 4 tracks
-('Smooth Start', 55, 1, 345, 'pending', NOW(), NOW()),
-('Jazz Flow', 55, 2, 367, 'pending', NOW(), NOW()),
-('Smooth Groove', 55, 3, 389, 'pending', NOW(), NOW()),
+('Smooth Start', 55, 1, 345, NULL, 'pending', NOW(), NOW()),
+('Jazz Flow', 55, 2, 367, NULL, 'pending', NOW(), NOW()),
+('Smooth Groove', 55, 3, 389, NULL, 'pending', NOW(), NOW()),
 ('Jazz Sunset', 55, 4, 356, NULL, 'pending', NOW(), NOW());

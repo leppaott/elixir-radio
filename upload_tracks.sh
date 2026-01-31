@@ -3,10 +3,10 @@
 # Upload tracks from ~/Songs directory to backend
 # Randomly skips ~10% of tracks to simulate incomplete albums
 
-SONGS_DIR="$HOME/Songs"
+SONGS_DIR="${SONGS_DIR:-$HOME/Songs}"
 API_URL="${API_URL:-http://localhost:4000}"
-TRACK_ID=1
-SKIP_PROBABILITY=10  # 10% chance to skip
+SKIP_PROBABILITY=10        # 10% chance to skip
+MAX_PARALLEL="${MAX_PARALLEL:-10}"  # Number of parallel uploads
 
 echo "Starting track upload from $SONGS_DIR"
 echo "-------------------------------------------"
@@ -16,43 +16,83 @@ if [ ! -d "$SONGS_DIR" ]; then
   exit 1
 fi
 
+# Get total number of tracks from database
+echo "Fetching track count from API..."
+max_track_id=$(curl -s "$API_URL/api/albums?per_page=1000" | grep -o '"id":[0-9]*' | grep -o '[0-9]*' | sort -n | tail -1)
+
+if [ -z "$max_track_id" ] || [ "$max_track_id" -eq 0 ]; then
+  echo "ERROR: Could not determine track count from API"
+  exit 1
+fi
+
+echo "Found $max_track_id tracks in database"
+
 # Count total files
-TOTAL_FILES=$(find "$SONGS_DIR" -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.m4a" \) | wc -l | tr -d ' ')
-echo "Found $TOTAL_FILES audio files"
+total_files=$(find "$SONGS_DIR" -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.m4a" \) | wc -l | tr -d ' ')
+echo "Found $total_files audio files"
 echo ""
 
-# Loop through audio files
-find "$SONGS_DIR" -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.m4a" \) | while IFS= read -r file; do
+# Get all audio files into an array
+audio_files=()
+while IFS= read -r file; do
+  audio_files+=("$file")
+done < <(find "$SONGS_DIR" -type f \( -name "*.mp3" -o -name "*.flac" -o -name "*.wav" -o -name "*.m4a" \))
+
+if [ ${#audio_files[@]} -eq 0 ]; then
+  echo "ERROR: No audio files found in $SONGS_DIR"
+  exit 1
+fi
+
+# Loop through tracks, cycling through audio files
+file_index=0
+active_jobs=0
+
+upload_track() {
+  local track_id=$1
+  local file=$2
+  local filename=$(basename "$file")
+
+  echo "Uploading track ID $track_id: $filename"
+
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$API_URL/admin/tracks/$track_id/upload" \
+    -F "audio_file=@$file")
+
+  if [ "$http_code" = "200" ] || [ "$http_code" = "201" ] || [ "$http_code" = "202" ]; then
+    echo "   Track ID $track_id: Success (HTTP $http_code)"
+  else
+    echo "   Track ID $track_id: Failed (HTTP $http_code)"
+  fi
+}
+
+for track_id in $(seq 1 $max_track_id); do
   # Random skip (10% chance)
-  RANDOM_NUM=$((RANDOM % 100))
-  if [ $RANDOM_NUM -lt $SKIP_PROBABILITY ]; then
-    echo "Skipping track ID $TRACK_ID (random skip)"
-    TRACK_ID=$((TRACK_ID + 1))
+  random_num=$((RANDOM % 100))
+  if [ $random_num -lt $SKIP_PROBABILITY ]; then
+    echo "Skipping track ID $track_id (random skip)"
     continue
   fi
 
-  FILENAME=$(basename "$file")
-  echo "Uploading track ID $TRACK_ID: $FILENAME"
+  # Get current file (cycle through array)
+  file="${audio_files[$file_index]}"
+  file_index=$(( (file_index + 1) % ${#audio_files[@]} ))
 
-  # Upload with curl
-  RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API_URL/admin/tracks/$TRACK_ID/upload" \
-    -F "audio_file=@$file" 2>&1)
+  # Start upload in background
+  upload_track $track_id "$file" &
 
-  HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-  BODY=$(echo "$RESPONSE" | head -n-1)
+  active_jobs=$((active_jobs + 1))
 
-  if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-    echo "   Success (HTTP $HTTP_CODE)"
-  elif [ "$HTTP_CODE" = "404" ]; then
-    echo "   Track ID $TRACK_ID not found (HTTP 404) - stopping uploads"
-    break
-  else
-    echo "   Failed (HTTP $HTTP_CODE)"
-  TRACK_ID=$((TRACK_ID + 1))
-
-  # Small delay to avoid overwhelming the server
-  sleep 0.5
+  # Wait for some jobs to finish if we hit the parallel limit
+  if [ $active_jobs -ge $MAX_PARALLEL ]; then
+    wait -n 2>/dev/null || true
+    active_jobs=$((active_jobs - 1))
+  fi
 done
 
+# Wait for all remaining background jobs
+echo ""
+echo "Waiting for remaining uploads to complete..."
+wait
+
+echo ""
 echo "-------------------------------------------"
 echo "Upload process completed"

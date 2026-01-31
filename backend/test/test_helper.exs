@@ -47,6 +47,11 @@ Ecto.Adapters.SQL.Sandbox.mode(ElixirRadio.Repo, :manual)
 # Set to :error level to only show critical failures
 Logger.configure(level: :error)
 
+# Load support files before ExUnit starts
+Code.require_file("support/data_case.exs", __DIR__)
+Code.require_file("support/conn_case.exs", __DIR__)
+Code.require_file("support/factory.exs", __DIR__)
+
 # Stop services and container on exit
 ExUnit.after_suite(fn _ ->
   # Gracefully stop Oban before database shutdown
@@ -63,10 +68,5 @@ ExUnit.after_suite(fn _ ->
   # Stop container
   Testcontainers.stop_container(container.container_id)
 end)
-
-# Load support files
-Code.require_file("test/support/data_case.exs")
-Code.require_file("test/support/conn_case.exs")
-Code.require_file("test/support/factory.exs")
 
 ExUnit.start()
