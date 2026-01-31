@@ -35,7 +35,7 @@ defmodule ElixirRadio.ApiAlbumsTest do
       assert Enum.at(first["tracks"], 0)["stream_id"] == nil
     end
 
-    test "includes stream_id when track has completed segments and ready upload", %{conn: _conn} do
+    test "returns tracks with upload_status regardless of segment availability", %{conn: _conn} do
       genre = insert!(:genre)
       artist = insert!(:artist)
 
@@ -69,7 +69,11 @@ defmodule ElixirRadio.ApiAlbumsTest do
 
       first = Enum.find(body["albums"], &(&1["id"] == album.id))
       assert first
-      assert Enum.at(first["tracks"], 0)["stream_id"] == track.id
+      track_response = Enum.at(first["tracks"], 0)
+      assert track_response["id"] == track.id
+      assert track_response["upload_status"] == "ready"
+      # stream_id is no longer included in album listings
+      refute Map.has_key?(track_response, "stream_id")
     end
   end
 end

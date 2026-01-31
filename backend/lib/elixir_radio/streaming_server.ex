@@ -70,23 +70,15 @@ defmodule ElixirRadio.StreamingServer do
 
     albums =
       Enum.map(result.items, fn album ->
-        # album here is the Ecto struct with preloaded :tracks
         tracks =
           (album.tracks || [])
           |> Enum.map(fn track ->
-            segment = Catalog.get_segment_by_track(track.id)
-
-            stream_id =
-              if (track.upload_status == "ready" and segment) &&
-                   segment.processing_status == "completed", do: track.id, else: nil
-
             %{
               id: track.id,
               title: track.title,
               track_number: track.track_number,
               duration_seconds: track.duration_seconds,
-              upload_status: track.upload_status,
-              stream_id: stream_id
+              upload_status: track.upload_status
             }
           end)
 
