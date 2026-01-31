@@ -220,7 +220,7 @@ defmodule ElixirRadio.UploadProcessingStreamingTest do
       assert response["processing_error"] != nil
     end
 
-    test "segments are correctly base64 encoded and decoded", %{track: track} do
+    test "segments are correctly returned", %{track: track} do
       # Upload and process
       conn =
         build_conn()

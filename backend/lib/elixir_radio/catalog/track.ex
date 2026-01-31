@@ -31,7 +31,7 @@ defmodule ElixirRadio.Catalog.Track do
 
     belongs_to(:album, ElixirRadio.Catalog.Album)
     has_one(:upload, ElixirRadio.Catalog.Upload)
-    has_one(:segment, ElixirRadio.Catalog.Segment)
+    has_one(:segment, ElixirRadio.Catalog.Segment, on_delete: :delete_all)
 
     timestamps()
   end

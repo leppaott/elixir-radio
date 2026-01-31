@@ -23,6 +23,7 @@ export function AlbumCard({ album }: AlbumCardProps) {
 
   const handleTrackClick = (track: Track) => {
     const isCurrentTrack = currentTrack?.id === track.id;
+
     if (isCurrentTrack) {
       toggle();
     } else {

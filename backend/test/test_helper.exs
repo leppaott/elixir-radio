@@ -19,7 +19,7 @@ db_config = [
   hostname: Testcontainers.get_host(),
   port: Testcontainers.PostgresContainer.port(container),
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+  pool_size: 20
 ]
 
 Application.put_env(:elixir_radio, ElixirRadio.Repo, db_config)

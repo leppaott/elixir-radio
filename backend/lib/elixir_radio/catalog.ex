@@ -257,6 +257,34 @@ defmodule ElixirRadio.Catalog do
     Repo.get_by(SegmentFile, segment_id: segment_id, index: index)
   end
 
+  @doc """
+  Fetch a `SegmentFile` by `track_id` and `index` in a single query.
+  Returns a map `%{segment_id: id, data: binary, processing_status: status}` or `nil`.
+  """
+  def get_segment_file_by_track(track_id, index) do
+    query =
+      from(sf in SegmentFile,
+        join: s in Segment,
+        on: sf.segment_id == s.id,
+        where: s.track_id == ^track_id and sf.index == ^index,
+        select: %{
+          segment_id: sf.segment_id,
+          data: sf.data,
+          processing_status: s.processing_status
+        }
+      )
+
+    Repo.one(query)
+  end
+
+  @doc """
+  Return all `SegmentFile` rows for a given `segment_id`, ordered by `index`.
+  """
+  def get_segment_files(segment_id) do
+    from(sf in SegmentFile, where: sf.segment_id == ^segment_id, order_by: sf.index)
+    |> Repo.all()
+  end
+
   # Pagination helper - supports cursor-based pagination with after_id
   defp paginate(query, opts) do
     per_page = Keyword.get(opts, :per_page, 20)

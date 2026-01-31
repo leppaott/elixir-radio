@@ -14,7 +14,7 @@ defmodule ElixirRadio.Catalog.Segment do
     field(:processing_error, :string)
 
     belongs_to(:track, ElixirRadio.Catalog.Track)
-    has_many(:files, ElixirRadio.Catalog.SegmentFile)
+    has_many(:files, ElixirRadio.Catalog.SegmentFile, on_delete: :delete_all)
 
     timestamps()
   end

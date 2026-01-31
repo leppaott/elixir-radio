@@ -151,53 +151,29 @@ defmodule ElixirRadio.CatalogTest do
       assert hd(result2.items).id == album2.id
     end
 
-    test "list_albums/0 only returns albums where all tracks are ready" do
+    test "list_albums/0 returns albums where not all tracks are processedy" do
       genre = insert!(:genre)
       artist = insert!(:artist)
 
-      # Album 1: All tracks ready - should be included
-      album1 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
+      # Has pending track
+      album = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
 
       insert!(:track, %{
-        album_id: album1.id,
-        track_number: 1,
-        upload_status: :ready
-      })
-
-      insert!(:track, %{
-        album_id: album1.id,
-        track_number: 2,
-        upload_status: :ready
-      })
-
-      # Album 2: Has pending track - should be excluded
-      album2 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
-
-      insert!(:track, %{
-        album_id: album2.id,
-        track_number: 1,
-        upload_status: :ready
-      })
-
-      insert!(:track, %{
-        album_id: album2.id,
-        track_number: 2,
-        upload_status: :pending
-      })
-
-      # Album 3: Has processing track - should be excluded
-      album3 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
-
-      insert!(:track, %{
-        album_id: album3.id,
+        album_id: album.id,
         track_number: 1,
         upload_status: :processing
+      })
+
+      insert!(:track, %{
+        album_id: album.id,
+        track_number: 2,
+        upload_status: :pending
       })
 
       result = Catalog.list_albums()
 
       assert length(result.items) == 1
-      assert hd(result.items).id == album1.id
+      assert hd(result.items).id == album.id
     end
   end
 

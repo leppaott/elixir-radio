@@ -12,7 +12,8 @@ config :elixir_radio, ecto_repos: [ElixirRadio.Repo]
 config :elixir_radio, Oban,
   repo: ElixirRadio.Repo,
   plugins: [Oban.Plugins.Pruner],
-  queues: [audio_processing: 3, default: 5]
+  queues: [audio_processing: 3],
+  shutdown_grace_period: :timer.seconds(120)
 
 # Import environment specific config at the end
 if File.exists?("config/#{config_env()}.exs") do

@@ -2,7 +2,7 @@ defmodule ElixirRadio.StreamingServer do
   use Plug.Router
 
   alias ElixirRadio.Catalog
-  alias ElixirRadio.Catalog.{Segment, SegmentFile}
+  alias ElixirRadio.Catalog.Segment
   alias ElixirRadio.StaticHeaders
   alias ElixirRadio.Workers.ProcessAudioJob
   alias ElixirRadio.SegmentCache
@@ -279,40 +279,26 @@ defmodule ElixirRadio.StreamingServer do
       |> String.replace(".ts", "")
       |> String.to_integer()
 
-    case Catalog.get_segment_by_track(track_id) do
-      %Segment{id: segment_id, processing_status: :completed} ->
-        segment_data =
-          case SegmentCache.get(segment_id, segment_num) do
-            nil ->
-              case Catalog.get_segment_file(segment_id, segment_num) do
-                nil ->
-                  nil
+    case SegmentCache.get_by_track(track_id, segment_num) do
+      data when is_binary(data) ->
+        conn
+        |> StaticHeaders.apply()
+        |> send_resp(200, data)
 
-                %SegmentFile{data: data} ->
-                  SegmentCache.put(segment_id, segment_num, data)
-                  data
-              end
+      _ ->
+        case Catalog.get_segment_file_by_track(track_id, segment_num) do
+          %{data: data, processing_status: :completed} ->
+            SegmentCache.put_by_track(track_id, segment_num, data)
 
-            data ->
-              data
-          end
-
-        case segment_data do
-          nil ->
-            conn
-            |> StaticHeaders.apply()
-            |> send_json(404, %{error: "Segment not found"})
-
-          data ->
             conn
             |> StaticHeaders.apply()
             |> send_resp(200, data)
-        end
 
-      _ ->
-        conn
-        |> StaticHeaders.apply()
-        |> send_json(404, %{error: "Segments not found"})
+          nil ->
+            conn
+            |> StaticHeaders.apply()
+            |> send_json(404, %{error: "Segments not found"})
+        end
     end
   end
 

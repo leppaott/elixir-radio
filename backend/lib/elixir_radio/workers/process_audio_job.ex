@@ -154,19 +154,24 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
         segment = Repo.get_by!(Segment, track_id: track.id)
 
-        Enum.each(segment_files, fn {filename, index} ->
-          segment_path = Path.join(output_dir, filename)
-          segment_data = File.read!(segment_path)
+        now = NaiveDateTime.utc_now(:second)
 
-          # Raw binary, no Base64 overhead
-          %SegmentFile{}
-          |> SegmentFile.changeset(%{
-            segment_id: segment.id,
-            index: index,
-            data: segment_data
-          })
-          |> Repo.insert!()
-        end)
+        rows =
+          Enum.map(segment_files, fn {filename, index} ->
+            segment_path = Path.join(output_dir, filename)
+            segment_data = File.read!(segment_path)
+
+            %{
+              segment_id: segment.id,
+              index: index,
+              data: segment_data,
+              inserted_at: now,
+              updated_at: now
+            }
+          end)
+
+        {count, _} = Repo.insert_all(SegmentFile, rows)
+        Logger.info("Inserted #{count} segment file rows for track #{track.id}")
 
         File.rm_rf!(output_dir)
 

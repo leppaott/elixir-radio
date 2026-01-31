@@ -4,13 +4,14 @@ defmodule ElixirRadio.SegmentCache do
   Prevents unbounded memory growth while maintaining performance.
   """
 
-  @ttl_hours 24
+  @ttl_hours 2
 
   @doc """
-  Gets segment data from cache or returns nil if not found or expired.
+  Track-keyed helpers: cache by track id and segment number so callers
+  that only have `track_id` can check the cache before querying the DB.
   """
-  def get(segment_id, segment_num) do
-    cache_key = {segment_id, segment_num}
+  def get_by_track(track_id, segment_num) do
+    cache_key = {:track, track_id, segment_num}
 
     case Cachex.get(:segment_cache, cache_key) do
       {:ok, nil} -> nil
@@ -23,8 +24,8 @@ defmodule ElixirRadio.SegmentCache do
   Stores segment data in cache with TTL.
   Cachex handles automatic eviction when limit is reached.
   """
-  def put(segment_id, segment_num, data) do
-    cache_key = {segment_id, segment_num}
+  def put_by_track(track_id, segment_num, data) do
+    cache_key = {:track, track_id, segment_num}
     ttl_ms = :timer.hours(@ttl_hours)
 
     Cachex.put(:segment_cache, cache_key, data, ttl: ttl_ms)
