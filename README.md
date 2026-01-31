@@ -4,15 +4,15 @@ A high-performance audio streaming backend built with Elixir that serves HLS (HT
 
 ## Features
 
-- 🎵 **HLS Audio Streaming** - Industry-standard adaptive streaming
-- 🎸 **Genre-Based Navigation** - Browse by genre (Electronic, Jazz, Rock, etc.)
-- 💾 **Database Segment Storage** - All segments stored in PostgreSQL
-- 📤 **Admin Upload API** - Upload audio files with automatic processing
-- ⚙️ **Background Job Processing** - Oban workers for async audio processing
-- 🔄 **Hot-Reloading** - Lettuce integration for instant code updates in Docker
-- 🐳 **Docker-First** - Complete development environment in Docker
-- 🎛️ **Configurable Samples** - 2-4 minute samples (configurable per track)
-- 🚀 **REST API** - Full-featured paginated API
+- **HLS Audio Streaming** - Industry-standard adaptive streaming
+- **Genre-Based Navigation** - Browse by genre (Electronic, Jazz, Rock, etc.)
+- **Database Segment Storage** - All segments stored in PostgreSQL
+- **Admin Upload API** - Upload audio files with automatic processing
+- **Background Job Processing** - Oban workers for async audio processing
+- **Hot-Reloading** - Lettuce integration for instant code updates in Docker
+- **Docker-First** - Complete development environment in Docker
+- **Configurable Samples** - 2-4 minute samples (configurable per track)
+- **REST API** - Full-featured paginated API
 
 ## Quick Start with Docker
 
@@ -186,4 +186,4 @@ Dockerfile.dev        # Dev container with FFmpeg
 
 ---
 
-Built with ❤️ using **Elixir** · **Oban** · **Lettuce** · **HLS**
+Built with **Elixir** · **Oban** · **Lettuce** · **HLS**
