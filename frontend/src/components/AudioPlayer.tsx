@@ -34,7 +34,7 @@ export function AudioPlayer() {
     audio.addEventListener("loadedmetadata", updateDuration);
     audio.addEventListener("durationchange", updateDuration);
 
-    // Initialize duration from track metadata if audio duration not available yet
+    // Initialize from metadata since audio element loads async
     if (currentTrack?.duration_seconds) {
       setDuration(currentTrack.duration_seconds);
     }

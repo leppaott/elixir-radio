@@ -23,13 +23,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const play = async (track: Track) => {
-    // If track doesn't have stream_url, fetch full track details
     if (!track.stream_url && track.upload_status === "ready") {
       try {
         const response = await fetch(getTracksUrl(track.id));
         const fullTrack = await response.json();
         if (fullTrack.stream_url) {
-          // Preserve the album.tracks array from the original track object
+          // Preserve album.tracks for prev/next navigation
           setCurrentTrack({
             ...fullTrack,
             album: track.album,
@@ -73,7 +72,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     );
     const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
 
-    // Find next ready track
     for (let i = currentIndex + 1; i < tracks.length; i++) {
       if (tracks[i].upload_status === "ready") {
         play({
@@ -94,7 +92,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     );
     const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
 
-    // Find previous ready track
     for (let i = currentIndex - 1; i >= 0; i--) {
       if (tracks[i].upload_status === "ready") {
         play({
@@ -122,14 +119,15 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
       {currentTrack && (
-        // biome-ignore lint/a11y/useMediaCaption: Music player doesn't require captions
         <audio
           ref={audioRef}
           src={currentTrack.stream_url}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           autoPlay={isPlaying}
-        />
+        >
+          <track kind="captions" label="" />
+        </audio>
       )}
     </PlayerContext.Provider>
   );

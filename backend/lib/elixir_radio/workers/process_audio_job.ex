@@ -15,20 +15,18 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"track_id" => track_id}}) do
-    # Oban stores args as strings, so convert to integer
+    # Oban stores args as strings
     track_id = String.to_integer(track_id)
     Logger.info("Starting audio processing for track #{track_id}")
 
-    # Get track with upload
     track = Repo.get!(Track, track_id) |> Repo.preload([:upload, :segment])
 
     if !track.upload do
       {:error, "No upload found for track #{track_id}"}
     else
-      # Update status
       update_track_status(track, "processing")
 
-      # Create or get segment record (must query DB in case of retry)
+      # Query DB in case of retry
       segment =
         Repo.get_by(Segment, track_id: track_id) ||
           Repo.insert!(%Segment{
@@ -42,22 +40,18 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
         |> Repo.update!()
 
       try do
-        # Create temporary file from upload data
         temp_dir = System.tmp_dir!()
         temp_input = Path.join(temp_dir, "input_#{track_id}_#{:rand.uniform(999_999)}")
 
         File.write!(temp_input, track.upload.file_data)
         Logger.info("Created temp file: #{temp_input}")
 
-        # Process audio and generate segments
         result = process_audio(temp_input, track)
 
-        # Clean up temp file
         File.rm(temp_input)
 
         case result do
           {:ok, playlist_data, segment_count} ->
-            # Store in database
             segment
             |> Segment.changeset(%{
               playlist_data: playlist_data,
@@ -134,7 +128,7 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
     Logger.info("Running ffmpeg for track #{track.id}")
 
-    # In test environment, suppress verbose FFmpeg stderr output
+    # Suppress verbose FFmpeg stderr in test
     result =
       if Mix.env() == :test do
         # Redirect stderr to /dev/null in test mode
@@ -148,27 +142,23 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
     case result do
       {_output, 0} ->
-        # Read playlist and fix segment paths to match our endpoint structure
         playlist_data =
           File.read!(playlist_file)
           |> String.replace(~r/segment(\d+)\.ts/, "segments/\\1.ts")
 
-        # Read all segment files and insert them into database as raw binary
         segment_files =
           File.ls!(output_dir)
           |> Enum.filter(&String.ends_with?(&1, ".ts"))
           |> Enum.sort()
           |> Enum.with_index()
 
-        # Get the segment record to link segment files
         segment = Repo.get_by!(Segment, track_id: track.id)
 
-        # Insert each segment file individually
         Enum.each(segment_files, fn {filename, index} ->
           segment_path = Path.join(output_dir, filename)
           segment_data = File.read!(segment_path)
 
-          # Store raw binary data directly (no Base64 encoding)
+          # Raw binary, no Base64 overhead
           %SegmentFile{}
           |> SegmentFile.changeset(%{
             segment_id: segment.id,
@@ -178,7 +168,6 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
           |> Repo.insert!()
         end)
 
-        # Clean up temp directory
         File.rm_rf!(output_dir)
 
         segment_count = length(segment_files)
@@ -189,7 +178,7 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
         File.rm_rf!(output_dir)
         error_msg = "FFmpeg failed with exit code #{exit_code}: #{output}"
 
-        # Only log FFmpeg errors in non-test environments (expected in tests)
+        # Expected in tests, only log in production
         if Mix.env() != :test do
           Logger.error(error_msg)
         end

@@ -51,7 +51,6 @@ export function AlbumList({
       const res = await fetch(url);
       const data: AlbumsResponse = await res.json();
 
-      // Update all state
       setPrevCursors((prev) => [...prev, currentCursor]);
       setCurrentCursor(nextCursor);
       setHasMore(data.pagination?.has_more ?? false);
@@ -85,14 +84,12 @@ export function AlbumList({
       const res = await fetch(url);
       const data: AlbumsResponse = await res.json();
 
-      // Update all state
       setPrevCursors(newPrevCursors);
       setCurrentCursor(prevPageCursor ?? null);
       setHasMore(data.pagination?.has_more ?? false);
       setNextCursor(data.pagination?.next_cursor ?? null);
       setAlbums(data.albums || []);
 
-      // Scroll after state update
       setTimeout(() => window.scrollTo({ top: 0, behavior: "auto" }), 0);
     } finally {
       setLoading(false);

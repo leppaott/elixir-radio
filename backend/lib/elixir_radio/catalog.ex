@@ -282,7 +282,6 @@ defmodule ElixirRadio.Catalog do
         query
       end
 
-    # Fetch items + 1 to check if there are more
     items = query |> limit(^(per_page + 1)) |> Repo.all()
 
     has_more = length(items) > per_page

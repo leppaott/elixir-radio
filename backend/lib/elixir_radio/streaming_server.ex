@@ -25,7 +25,6 @@ defmodule ElixirRadio.StreamingServer do
   plug(:match)
   plug(:dispatch)
 
-  # Health check
   get "/health" do
     send_json(conn, 200, %{status: "ok"})
   end
@@ -186,7 +185,6 @@ defmodule ElixirRadio.StreamingServer do
         updated_at: track.updated_at
       }
 
-      # Add stream_url when segments are ready
       segment = Catalog.get_segment_by_track(id)
 
       response =
@@ -286,19 +284,16 @@ defmodule ElixirRadio.StreamingServer do
         segment_data =
           case SegmentCache.get(segment_id, segment_num) do
             nil ->
-              # Cache miss - fetch from DB
               case Catalog.get_segment_file(segment_id, segment_num) do
                 nil ->
                   nil
 
                 %SegmentFile{data: data} ->
-                  # Store in cache with TTL
                   SegmentCache.put(segment_id, segment_num, data)
                   data
               end
 
             data ->
-              # Cache hit
               data
           end
 

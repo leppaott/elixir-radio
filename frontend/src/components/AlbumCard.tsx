@@ -26,7 +26,6 @@ export function AlbumCard({ album }: AlbumCardProps) {
     if (isCurrentTrack) {
       toggle();
     } else {
-      // Ensure track has album and artist data for the player
       const trackWithFullData = {
         ...track,
         album: {
