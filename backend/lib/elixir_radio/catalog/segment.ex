@@ -6,11 +6,11 @@ defmodule ElixirRadio.Catalog.Segment do
 
   schema "segments" do
     field(:playlist_data, :binary)
-    field(:segment_files, :map)
     field(:processing_status, :string, default: "pending")
     field(:processing_error, :string)
 
     belongs_to(:track, ElixirRadio.Catalog.Track)
+    has_many(:files, ElixirRadio.Catalog.SegmentFile)
 
     timestamps()
   end
@@ -21,7 +21,6 @@ defmodule ElixirRadio.Catalog.Segment do
     |> cast(attrs, [
       :track_id,
       :playlist_data,
-      :segment_files,
       :processing_status,
       :processing_error
     ])

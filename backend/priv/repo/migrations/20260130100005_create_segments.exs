@@ -5,7 +5,6 @@ defmodule ElixirRadio.Repo.Migrations.CreateSegments do
     create table(:segments) do
       add(:track_id, references(:tracks, on_delete: :delete_all), null: false)
       add(:playlist_data, :binary, null: false)
-      add(:segment_files, :map, null: false, default: %{})
       add(:processing_status, :string, default: "pending", null: false)
       add(:processing_error, :text)
 
@@ -14,5 +13,16 @@ defmodule ElixirRadio.Repo.Migrations.CreateSegments do
 
     create(unique_index(:segments, [:track_id]))
     create(index(:segments, [:processing_status]))
+
+    create table(:segment_files) do
+      add(:segment_id, references(:segments, on_delete: :delete_all), null: false)
+      add(:index, :integer, null: false)
+      add(:data, :binary, null: false)
+
+      timestamps()
+    end
+
+    create(index(:segment_files, [:segment_id]))
+    create(unique_index(:segment_files, [:segment_id, :index]))
   end
 end

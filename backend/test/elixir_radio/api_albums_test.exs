@@ -58,7 +58,6 @@ defmodule ElixirRadio.ApiAlbumsTest do
       insert!(:segment, %{
         track_id: track.id,
         processing_status: "completed",
-        segment_files: %{},
         playlist_data: "#EXTM3U"
       })
 

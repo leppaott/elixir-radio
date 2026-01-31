@@ -5,7 +5,7 @@ defmodule ElixirRadio.Catalog do
 
   import Ecto.Query, warn: false
   alias ElixirRadio.Repo
-  alias ElixirRadio.Catalog.{Artist, Album, Track, Genre, Upload, Segment}
+  alias ElixirRadio.Catalog.{Artist, Album, Track, Genre, Upload, Segment, SegmentFile}
 
   # Genres
 
@@ -272,6 +272,10 @@ defmodule ElixirRadio.Catalog do
 
   def get_segment_by_track(track_id) do
     Repo.get_by(Segment, track_id: track_id)
+  end
+
+  def get_segment_file(segment_id, index) do
+    Repo.get_by(SegmentFile, segment_id: segment_id, index: index)
   end
 
   # Pagination helper

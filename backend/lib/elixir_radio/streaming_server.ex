@@ -2,7 +2,7 @@ defmodule ElixirRadio.StreamingServer do
   use Plug.Router
 
   alias ElixirRadio.Catalog
-  alias ElixirRadio.Catalog.Segment
+  alias ElixirRadio.Catalog.{Segment, SegmentFile}
   alias ElixirRadio.StaticHeaders
   alias ElixirRadio.Workers.ProcessAudioJob
 
@@ -310,20 +310,20 @@ defmodule ElixirRadio.StreamingServer do
   end
 
   get "/streams/tracks/:track_id/segments/:segment_number" do
-    segment_num = segment_number |> String.replace(".ts", "")
+    segment_num =
+      segment_number
+      |> String.replace(".ts", "")
+      |> String.to_integer()
 
     case Catalog.get_segment_by_track(track_id) do
-      %Segment{segment_files: files, processing_status: "completed"} ->
-        case Map.get(files, segment_num) do
+      %Segment{id: segment_id, processing_status: "completed"} ->
+        case Catalog.get_segment_file(segment_id, segment_num) do
           nil ->
             conn
             |> StaticHeaders.apply()
             |> send_json(404, %{error: "Segment not found"})
 
-          base64_segment_data ->
-            # Decode base64-encoded segment data
-            segment_data = Base.decode64!(base64_segment_data)
-
+          %SegmentFile{data: segment_data} ->
             conn
             |> StaticHeaders.apply()
             |> send_resp(200, segment_data)

@@ -239,21 +239,18 @@ defmodule ElixirRadio.UploadProcessingStreamingTest do
       # Get segment directly from database
       segment = Catalog.get_segment_by_track(track.id)
       assert segment != nil
-      assert is_map(segment.segment_files)
 
-      # Verify segment data is base64 encoded in database
-      first_segment = Map.get(segment.segment_files, "0")
-      assert is_binary(first_segment)
-      # Check it's valid base64 (will raise if not)
-      decoded = Base.decode64!(first_segment)
-      assert is_binary(decoded)
-      assert byte_size(decoded) > 0
+      # Verify segment files are stored as individual records with raw binary data
+      first_segment_file = Catalog.get_segment_file(segment.id, 0)
+      assert first_segment_file != nil
+      assert is_binary(first_segment_file.data)
+      assert byte_size(first_segment_file.data) > 0
 
-      # Verify streaming decodes it properly
+      # Verify streaming returns the raw binary data
       conn = build_conn() |> get("/streams/tracks/#{track.id}/segments/0.ts")
       assert conn.status == 200
-      # Should return decoded binary, not base64 string
-      assert conn.resp_body == decoded
+      # Should return raw binary data directly from database
+      assert conn.resp_body == first_segment_file.data
     end
   end
 

@@ -11,7 +11,7 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
   require Logger
 
   alias ElixirRadio.Repo
-  alias ElixirRadio.Catalog.{Track, Segment}
+  alias ElixirRadio.Catalog.{Track, Segment, SegmentFile}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"track_id" => track_id}}) do
@@ -34,8 +34,7 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
           Repo.insert!(%Segment{
             track_id: track_id,
             processing_status: "pending",
-            playlist_data: <<>>,
-            segment_files: %{}
+            playlist_data: <<>>
           })
 
       segment =
@@ -57,12 +56,11 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
         File.rm(temp_input)
 
         case result do
-          {:ok, playlist_data, segment_files} ->
+          {:ok, playlist_data, segment_count} ->
             # Store in database
             segment
             |> Segment.changeset(%{
               playlist_data: playlist_data,
-              segment_files: segment_files,
               processing_status: "completed"
             })
             |> Repo.update!()
@@ -70,7 +68,7 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
             update_track_status(track, "ready")
 
             Logger.info(
-              "Successfully processed track #{track_id}, stored #{map_size(segment_files)} segments"
+              "Successfully processed track #{track_id}, stored #{segment_count} segments"
             )
 
             :ok
@@ -155,24 +153,37 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
           File.read!(playlist_file)
           |> String.replace(~r/segment(\d+)\.ts/, "segments/\\1.ts")
 
-        # Read all segment files and base64-encode them for JSONB storage
+        # Read all segment files and insert them into database as raw binary
         segment_files =
           File.ls!(output_dir)
           |> Enum.filter(&String.ends_with?(&1, ".ts"))
           |> Enum.sort()
           |> Enum.with_index()
-          |> Enum.reduce(%{}, fn {filename, index}, acc ->
-            segment_path = Path.join(output_dir, filename)
-            segment_data = File.read!(segment_path)
-            # Base64 encode binary data so it can be stored in JSONB
-            Map.put(acc, to_string(index), Base.encode64(segment_data))
-          end)
+
+        # Get the segment record to link segment files
+        segment = Repo.get_by!(Segment, track_id: track.id)
+
+        # Insert each segment file individually
+        Enum.each(segment_files, fn {filename, index} ->
+          segment_path = Path.join(output_dir, filename)
+          segment_data = File.read!(segment_path)
+
+          # Store raw binary data directly (no Base64 encoding)
+          %SegmentFile{}
+          |> SegmentFile.changeset(%{
+            segment_id: segment.id,
+            index: index,
+            data: segment_data
+          })
+          |> Repo.insert!()
+        end)
 
         # Clean up temp directory
         File.rm_rf!(output_dir)
 
-        Logger.info("Generated #{map_size(segment_files)} segments for track #{track.id}")
-        {:ok, playlist_data, segment_files}
+        segment_count = length(segment_files)
+        Logger.info("Generated #{segment_count} segments for track #{track.id}")
+        {:ok, playlist_data, segment_count}
 
       {output, exit_code} ->
         File.rm_rf!(output_dir)

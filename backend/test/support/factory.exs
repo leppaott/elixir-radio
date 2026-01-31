@@ -44,7 +44,6 @@ defmodule ElixirRadio.Factory do
   def build(:segment) do
     %Segment{
       playlist_data: "#EXTM3U\n#EXT-X-VERSION:3\n",
-      segment_files: %{},
       processing_status: "pending"
     }
   end
