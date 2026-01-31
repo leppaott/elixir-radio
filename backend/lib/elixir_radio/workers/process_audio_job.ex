@@ -24,19 +24,19 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
     if !track.upload do
       {:error, "No upload found for track #{track_id}"}
     else
-      update_track_status(track, "processing")
+      update_track_status(track, :processing)
 
       # Query DB in case of retry
       segment =
         Repo.get_by(Segment, track_id: track_id) ||
           Repo.insert!(%Segment{
             track_id: track_id,
-            processing_status: "pending",
+            processing_status: :pending,
             playlist_data: <<>>
           })
 
       segment =
-        Ecto.Changeset.change(segment, processing_status: "processing")
+        Ecto.Changeset.change(segment, processing_status: :processing)
         |> Repo.update!()
 
       try do
@@ -55,11 +55,11 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
             segment
             |> Segment.changeset(%{
               playlist_data: playlist_data,
-              processing_status: "completed"
+              processing_status: :completed
             })
             |> Repo.update!()
 
-            update_track_status(track, "ready")
+            update_track_status(track, :ready)
 
             Logger.info(
               "Successfully processed track #{track_id}, stored #{segment_count} segments"
@@ -69,10 +69,10 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
           {:error, reason} ->
             segment
-            |> Ecto.Changeset.change(processing_status: "failed", processing_error: reason)
+            |> Ecto.Changeset.change(processing_status: :failed, processing_error: reason)
             |> Repo.update!()
 
-            update_track_status(track, "failed")
+            update_track_status(track, :failed)
             {:error, reason}
         end
       rescue
@@ -81,12 +81,12 @@ defmodule ElixirRadio.Workers.ProcessAudioJob do
 
           segment
           |> Ecto.Changeset.change(
-            processing_status: "failed",
+            processing_status: :failed,
             processing_error: Exception.message(error)
           )
           |> Repo.update!()
 
-          update_track_status(track, "failed")
+          update_track_status(track, :failed)
           {:error, Exception.message(error)}
       end
     end

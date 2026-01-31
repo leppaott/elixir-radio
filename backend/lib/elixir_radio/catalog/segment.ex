@@ -2,11 +2,15 @@ defmodule ElixirRadio.Catalog.Segment do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @processing_statuses ~w(pending processing completed failed)
-
   schema "segments" do
     field(:playlist_data, :binary)
-    field(:processing_status, :string, default: "pending")
+
+    field(:processing_status, Ecto.Enum,
+      values: [pending: 0, processing: 1, completed: 2, failed: 3],
+      default: :pending,
+      embed_as: :dumped
+    )
+
     field(:processing_error, :string)
 
     belongs_to(:track, ElixirRadio.Catalog.Track)
@@ -25,7 +29,6 @@ defmodule ElixirRadio.Catalog.Segment do
       :processing_error
     ])
     |> validate_required([:track_id])
-    |> validate_inclusion(:processing_status, @processing_statuses)
     |> foreign_key_constraint(:track_id)
     |> unique_constraint(:track_id)
   end

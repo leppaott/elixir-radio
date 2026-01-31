@@ -49,7 +49,7 @@ defmodule ElixirRadio.AdminAlbumTest do
       album = Repo.get!(Catalog.Album, response["album_id"]) |> Repo.preload(:tracks)
       assert album.title == "Test Album"
       assert length(album.tracks) == 3
-      assert Enum.all?(album.tracks, &(&1.upload_status == "pending"))
+      assert Enum.all?(album.tracks, &(&1.upload_status == :pending))
     end
 
     test "creates album with single track", %{genre: genre, artist: artist} do
@@ -147,9 +147,9 @@ defmodule ElixirRadio.AdminAlbumTest do
       artist = insert!(:artist)
       album = insert!(:album, artist: artist, genre: genre)
 
-      track1 = insert!(:track, album: album, track_number: 1, upload_status: "pending")
-      track2 = insert!(:track, album: album, track_number: 2, upload_status: "ready")
-      track3 = insert!(:track, album: album, track_number: 3, upload_status: "processing")
+      track1 = insert!(:track, album: album, track_number: 1, upload_status: :pending)
+      track2 = insert!(:track, album: album, track_number: 2, upload_status: :ready)
+      track3 = insert!(:track, album: album, track_number: 3, upload_status: :processing)
 
       %{album: album, tracks: [track1, track2, track3], genre: genre, artist: artist}
     end
@@ -179,7 +179,7 @@ defmodule ElixirRadio.AdminAlbumTest do
     test "shows complete true when all tracks ready", %{album: album, tracks: tracks} do
       # Update all tracks to ready
       Enum.each(tracks, fn track ->
-        Catalog.update_track_status(track.id, "ready")
+        Catalog.update_track_status(track.id, :ready)
       end)
 
       conn = build_conn() |> get("/admin/albums/#{album.id}/status")
@@ -210,7 +210,7 @@ defmodule ElixirRadio.AdminAlbumTest do
       tracks: [track1, _track2, _track3]
     } do
       # Add a segment to track1
-      insert!(:segment, track_id: track1.id, processing_status: "completed")
+      insert!(:segment, track_id: track1.id, processing_status: :completed)
 
       conn = build_conn() |> get("/admin/albums/#{album.id}/status")
       response = json_response(conn, 200)
@@ -251,7 +251,7 @@ defmodule ElixirRadio.AdminAlbumTest do
       assert status["complete"] == false
 
       # Step 3: Upload first track (simulated - not testing actual FFmpeg)
-      Catalog.update_track_status(track1["id"], "ready")
+      Catalog.update_track_status(track1["id"], :ready)
 
       conn = build_conn() |> get("/admin/albums/#{album_id}/status")
       status = json_response(conn, 200)
@@ -261,7 +261,7 @@ defmodule ElixirRadio.AdminAlbumTest do
       assert status["complete"] == false
 
       # Step 4: Upload second track
-      Catalog.update_track_status(track2["id"], "ready")
+      Catalog.update_track_status(track2["id"], :ready)
 
       conn = build_conn() |> get("/admin/albums/#{album_id}/status")
       status = json_response(conn, 200)

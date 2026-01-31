@@ -37,14 +37,14 @@ defmodule ElixirRadio.Factory do
       track_number: 1,
       duration_seconds: 180,
       sample_duration: 120,
-      upload_status: "pending"
+      upload_status: :pending
     }
   end
 
   def build(:segment) do
     %Segment{
       playlist_data: "#EXTM3U\n#EXT-X-VERSION:3\n",
-      processing_status: "pending"
+      processing_status: :pending
     }
   end
 

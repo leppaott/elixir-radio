@@ -17,6 +17,7 @@ defmodule ElixirRadio.Catalog do
 
   def get_genre!(id), do: Repo.get!(Genre, id)
 
+  @spec get_genre(any()) :: {:error, :not_found} | {:ok, any()}
   def get_genre(id) do
     case Repo.get(Genre, id) do
       nil -> {:error, :not_found}
@@ -171,10 +172,10 @@ defmodule ElixirRadio.Catalog do
               }
             end)
             |> Enum.sort_by(& &1.track_number),
-          complete: Enum.all?(album.tracks, &(&1.upload_status == "ready")),
-          ready_count: Enum.count(album.tracks, &(&1.upload_status == "ready")),
-          processing_count: Enum.count(album.tracks, &(&1.upload_status == "processing")),
-          pending_count: Enum.count(album.tracks, &(&1.upload_status == "pending")),
+          complete: Enum.all?(album.tracks, &(&1.upload_status == :ready)),
+          ready_count: Enum.count(album.tracks, &(&1.upload_status == :ready)),
+          processing_count: Enum.count(album.tracks, &(&1.upload_status == :processing)),
+          pending_count: Enum.count(album.tracks, &(&1.upload_status == :pending)),
           total_count: length(album.tracks)
         }
 
@@ -198,7 +199,7 @@ defmodule ElixirRadio.Catalog do
   end
 
   def update_track_status(id, status)
-      when status in ["pending", "processing", "ready", "failed"] do
+      when status in [:pending, :processing, :ready, :failed] do
     case get_track!(id) do
       nil ->
         {:error, :not_found}
@@ -215,7 +216,7 @@ defmodule ElixirRadio.Catalog do
       from(t in Track,
         join: a in Album,
         on: t.album_id == a.id,
-        where: a.genre_id == ^genre_id and t.upload_status == "ready",
+        where: a.genre_id == ^genre_id and t.upload_status == :ready,
         preload: [album: [:artist, :genre], segment: []]
       )
 

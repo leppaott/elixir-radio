@@ -17,7 +17,7 @@ defmodule ElixirRadio.UploadProcessingStreamingTest do
       genre = insert!(:genre, name: "Electronic")
       artist = insert!(:artist)
       album = insert!(:album, genre: genre, artist: artist)
-      track = insert!(:track, album: album, upload_status: "pending")
+      track = insert!(:track, album: album, upload_status: :pending)
 
       %{genre: genre, track: track, album: album, artist: artist}
     end
@@ -266,7 +266,7 @@ defmodule ElixirRadio.UploadProcessingStreamingTest do
 
     # Verify track status changed
     track = Repo.get!(Catalog.Track, track_id)
-    assert track.upload_status in ["ready", "processing", "failed"]
+    assert track.upload_status in [:ready, :processing, :failed]
   end
 
   defp perform_oban_job(track_id) do

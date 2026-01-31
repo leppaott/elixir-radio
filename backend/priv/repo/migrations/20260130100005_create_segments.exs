@@ -5,7 +5,7 @@ defmodule ElixirRadio.Repo.Migrations.CreateSegments do
     create table(:segments) do
       add(:track_id, references(:tracks, on_delete: :delete_all), null: false)
       add(:playlist_data, :binary, null: false)
-      add(:processing_status, :string, default: "pending", null: false)
+      add(:processing_status, :integer, default: 0, null: false)
       add(:processing_error, :text)
 
       timestamps()

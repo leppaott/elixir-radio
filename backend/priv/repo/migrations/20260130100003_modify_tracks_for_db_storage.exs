@@ -5,7 +5,7 @@ defmodule ElixirRadio.Repo.Migrations.ModifyTracksForDbStorage do
     alter table(:tracks) do
       remove(:stream_id)
       remove(:file_path)
-      add(:upload_status, :string, default: "pending", null: false)
+      add(:upload_status, :integer, default: 0, null: false)
     end
 
     create(index(:tracks, [:upload_status]))

@@ -109,7 +109,7 @@ defmodule ElixirRadio.StreamingServerTest do
           title: "Track 1",
           album_id: album.id,
           track_number: 1,
-          upload_status: "ready"
+          upload_status: :ready
         })
 
       # Track without segment (should be excluded)
@@ -118,7 +118,7 @@ defmodule ElixirRadio.StreamingServerTest do
           title: "Track 2",
           album_id: album.id,
           track_number: 2,
-          upload_status: "pending"
+          upload_status: :pending
         })
 
       conn = Plug.Test.conn(:get, "/streams/Electronic")
@@ -149,7 +149,7 @@ defmodule ElixirRadio.StreamingServerTest do
           title: "Track #{i}",
           album_id: album.id,
           track_number: i,
-          upload_status: "ready"
+          upload_status: :ready
         })
       end
 

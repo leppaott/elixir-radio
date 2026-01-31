@@ -20,7 +20,7 @@ defmodule ElixirRadio.ApiAlbumsTest do
         album_id: album.id,
         track_number: 1,
         alt_track_number: "A1",
-        upload_status: "pending"
+        upload_status: :ready
       })
 
       conn = Plug.Test.conn(:get, "/api/albums")
@@ -54,13 +54,13 @@ defmodule ElixirRadio.ApiAlbumsTest do
           title: "Ready Track",
           album_id: album.id,
           track_number: 1,
-          upload_status: "ready"
+          upload_status: :ready
         })
 
       # Insert a segment marked completed for this track
       insert!(:segment, %{
         track_id: track.id,
-        processing_status: "completed",
+        processing_status: :completed,
         playlist_data: "#EXTM3U"
       })
 
@@ -91,12 +91,24 @@ defmodule ElixirRadio.ApiAlbumsTest do
           genre_id: genre1.id
         })
 
-      _album2 =
+      insert!(:track, %{
+        album_id: album1.id,
+        track_number: 1,
+        upload_status: :ready
+      })
+
+      album2 =
         insert!(:album, %{
           title: "Jazz Album",
           artist_id: artist.id,
           genre_id: genre2.id
         })
+
+      insert!(:track, %{
+        album_id: album2.id,
+        track_number: 1,
+        upload_status: :ready
+      })
 
       conn = Plug.Test.conn(:get, "/api/albums?genre=#{genre1.id}")
       conn = ElixirRadio.StreamingServer.call(conn, [])
@@ -121,12 +133,24 @@ defmodule ElixirRadio.ApiAlbumsTest do
           genre_id: genre.id
         })
 
-      _album2 =
+      insert!(:track, %{
+        album_id: album1.id,
+        track_number: 1,
+        upload_status: :ready
+      })
+
+      album2 =
         insert!(:album, %{
           title: "Album by Artist Two",
           artist_id: artist2.id,
           genre_id: genre.id
         })
+
+      insert!(:track, %{
+        album_id: album2.id,
+        track_number: 1,
+        upload_status: :ready
+      })
 
       conn = Plug.Test.conn(:get, "/api/albums?artist=#{artist1.id}")
       conn = ElixirRadio.StreamingServer.call(conn, [])
@@ -154,19 +178,37 @@ defmodule ElixirRadio.ApiAlbumsTest do
           genre_id: genre1.id
         })
 
-      _album2 =
+      insert!(:track, %{
+        album_id: album1.id,
+        track_number: 1,
+        upload_status: :ready
+      })
+
+      album2 =
         insert!(:album, %{
           title: "Jazz by Artist One",
           artist_id: artist1.id,
           genre_id: genre2.id
         })
 
-      _album3 =
+      insert!(:track, %{
+        album_id: album2.id,
+        track_number: 1,
+        upload_status: :ready
+      })
+
+      album3 =
         insert!(:album, %{
           title: "Electronic by Artist Two",
           artist_id: artist2.id,
           genre_id: genre1.id
         })
+
+      insert!(:track, %{
+        album_id: album3.id,
+        track_number: 1,
+        upload_status: :ready
+      })
 
       conn = Plug.Test.conn(:get, "/api/albums?genre=#{genre1.id}&artist=#{artist1.id}")
       conn = ElixirRadio.StreamingServer.call(conn, [])

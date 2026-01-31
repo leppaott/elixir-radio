@@ -188,8 +188,8 @@ defmodule ElixirRadio.StreamingServer do
       segment = Catalog.get_segment_by_track(id)
 
       response =
-        if (track.upload_status == "ready" and segment) &&
-             segment.processing_status == "completed" do
+        if (track.upload_status == :ready and segment) &&
+             segment.processing_status == :completed do
           Map.put(response, :stream_url, "/streams/tracks/#{track.id}/playlist.m3u8")
         else
           response
@@ -256,7 +256,7 @@ defmodule ElixirRadio.StreamingServer do
 
   get "/streams/tracks/:track_id/playlist.m3u8" do
     case Catalog.get_segment_by_track(track_id) do
-      %Segment{playlist_data: playlist_data, processing_status: "completed"} ->
+      %Segment{playlist_data: playlist_data, processing_status: :completed} ->
         conn
         |> StaticHeaders.apply()
         |> send_resp(200, playlist_data)
@@ -280,7 +280,7 @@ defmodule ElixirRadio.StreamingServer do
       |> String.to_integer()
 
     case Catalog.get_segment_by_track(track_id) do
-      %Segment{id: segment_id, processing_status: "completed"} ->
+      %Segment{id: segment_id, processing_status: :completed} ->
         segment_data =
           case SegmentCache.get(segment_id, segment_num) do
             nil ->
@@ -412,7 +412,7 @@ defmodule ElixirRadio.StreamingServer do
         processing_status: segment && segment.processing_status,
         processing_error: segment && segment.processing_error,
         ready_to_stream:
-          track.upload_status == "ready" && segment && segment.processing_status == "completed"
+          track.upload_status == :ready && segment && segment.processing_status == :completed
       }
 
       send_json(conn, 200, status_response)
@@ -460,7 +460,7 @@ defmodule ElixirRadio.StreamingServer do
           send_json(conn, 202, %{
             message: "Upload received, processing queued",
             track_id: track_id,
-            status: "pending"
+            status: :pending
           })
 
         {:error, changeset} ->

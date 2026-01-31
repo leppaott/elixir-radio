@@ -150,6 +150,55 @@ defmodule ElixirRadio.CatalogTest do
       assert result2.has_more == false
       assert hd(result2.items).id == album2.id
     end
+
+    test "list_albums/0 only returns albums where all tracks are ready" do
+      genre = insert!(:genre)
+      artist = insert!(:artist)
+
+      # Album 1: All tracks ready - should be included
+      album1 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
+
+      insert!(:track, %{
+        album_id: album1.id,
+        track_number: 1,
+        upload_status: :ready
+      })
+
+      insert!(:track, %{
+        album_id: album1.id,
+        track_number: 2,
+        upload_status: :ready
+      })
+
+      # Album 2: Has pending track - should be excluded
+      album2 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
+
+      insert!(:track, %{
+        album_id: album2.id,
+        track_number: 1,
+        upload_status: :ready
+      })
+
+      insert!(:track, %{
+        album_id: album2.id,
+        track_number: 2,
+        upload_status: :pending
+      })
+
+      # Album 3: Has processing track - should be excluded
+      album3 = insert!(:album, %{artist_id: artist.id, genre_id: genre.id})
+
+      insert!(:track, %{
+        album_id: album3.id,
+        track_number: 1,
+        upload_status: :processing
+      })
+
+      result = Catalog.list_albums()
+
+      assert length(result.items) == 1
+      assert hd(result.items).id == album1.id
+    end
   end
 
   describe "tracks" do
@@ -194,7 +243,7 @@ defmodule ElixirRadio.CatalogTest do
       assert {:ok, track} = Catalog.create_track(attrs)
       assert track.title == "Test Track"
       assert track.duration_seconds == 240
-      assert track.upload_status == "pending"
+      assert track.upload_status == :pending
     end
 
     test "list_tracks_by_genre/2 returns only tracks with ready status" do
@@ -206,20 +255,20 @@ defmodule ElixirRadio.CatalogTest do
         insert!(:track, %{
           album_id: album.id,
           track_number: 1,
-          upload_status: "ready"
+          upload_status: :ready
         })
 
       _pending_track =
         insert!(:track, %{
           album_id: album.id,
           track_number: 2,
-          upload_status: "pending"
+          upload_status: :pending
         })
 
       result = Catalog.list_tracks_by_genre(genre.id, per_page: 10)
 
       assert length(result.items) == 1
-      assert hd(result.items).upload_status == "ready"
+      assert hd(result.items).upload_status == :ready
     end
 
     test "update_track_status/2 updates track status" do
@@ -231,11 +280,11 @@ defmodule ElixirRadio.CatalogTest do
         insert!(:track, %{
           album_id: album.id,
           track_number: 1,
-          upload_status: "pending"
+          upload_status: :pending
         })
 
-      assert {:ok, updated_track} = Catalog.update_track_status(track.id, "ready")
-      assert updated_track.upload_status == "ready"
+      assert {:ok, updated_track} = Catalog.update_track_status(track.id, :ready)
+      assert updated_track.upload_status == :ready
     end
   end
 end

@@ -2,8 +2,6 @@ defmodule ElixirRadio.Catalog.Track do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @upload_statuses ~w(pending processing ready failed)
-
   @derive {Jason.Encoder,
            only: [
              :id,
@@ -24,7 +22,12 @@ defmodule ElixirRadio.Catalog.Track do
     field(:alt_track_number, :string)
     field(:duration_seconds, :integer)
     field(:sample_duration, :integer, default: 120)
-    field(:upload_status, :string, default: "pending")
+
+    field(:upload_status, Ecto.Enum,
+      values: [pending: 0, processing: 1, ready: 2, failed: 3],
+      default: :pending,
+      embed_as: :dumped
+    )
 
     belongs_to(:album, ElixirRadio.Catalog.Album)
     has_one(:upload, ElixirRadio.Catalog.Upload)
@@ -45,7 +48,6 @@ defmodule ElixirRadio.Catalog.Track do
       :upload_status
     ])
     |> validate_required([:title, :album_id, :track_number])
-    |> validate_inclusion(:upload_status, @upload_statuses)
     |> validate_number(:sample_duration, greater_than: 0, less_than_or_equal_to: 240)
     |> foreign_key_constraint(:album_id)
   end

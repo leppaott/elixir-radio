@@ -17,11 +17,11 @@ if [ ! -d "$SONGS_DIR" ]; then
 fi
 
 # Get total number of tracks from database
-echo "Fetching track count from API..."
-max_track_id=$(curl -s "$API_URL/api/albums?per_page=1000" | grep -o '"id":[0-9]*' | grep -o '[0-9]*' | sort -n | tail -1)
+echo "Fetching track count from database..."
+max_track_id=$(docker compose exec -T postgres psql -U postgres -d elixir_radio -t -c "SELECT MAX(id) FROM tracks" | tr -d ' ')
 
-if [ -z "$max_track_id" ] || [ "$max_track_id" -eq 0 ]; then
-  echo "ERROR: Could not determine track count from API"
+if [ -z "$max_track_id" ]; then
+  echo "ERROR: Could not determine track count from database"
   exit 1
 fi
 
