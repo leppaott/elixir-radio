@@ -11,6 +11,7 @@ defmodule ElixirRadio.Catalog.Track do
              :album_id,
              :album,
              :track_number,
+             :alt_track_number,
              :duration_seconds,
              :sample_duration,
              :upload_status,
@@ -20,6 +21,7 @@ defmodule ElixirRadio.Catalog.Track do
   schema "tracks" do
     field(:title, :string)
     field(:track_number, :integer)
+    field(:alt_track_number, :string)
     field(:duration_seconds, :integer)
     field(:sample_duration, :integer, default: 120)
     field(:upload_status, :string, default: "pending")

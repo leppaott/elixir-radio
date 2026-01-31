@@ -31,6 +31,7 @@ export interface Track {
   title: string;
   album_id: number;
   track_number: number;
+  alt_track_number?: string | null;
   duration_seconds: number | null;
   sample_duration: number;
   upload_status: "pending" | "processing" | "ready" | "failed";

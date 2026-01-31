@@ -124,7 +124,7 @@ export function AlbumCard({ album }: AlbumCardProps) {
                     )
                   ) : (
                     <Typography variant="caption">
-                      {track.track_number}
+                      {track.alt_track_number || track.track_number}
                     </Typography>
                   )}
                 </Box>
