@@ -315,17 +315,28 @@ defmodule ElixirRadio.StreamingServer do
   end
 
   post "/admin/albums" do
-    album_attrs =
-      Map.take(conn.body_params, [
-        "title",
-        "artist_id",
-        "genre_id",
-        "release_year",
-        "cover_image_url",
-        "description"
-      ])
+    # Only accept explicit `artist_id` (ignore nested `artist` object)
+    artist_id = conn.body_params["artist_id"]
 
-    tracks_attrs = Map.get(conn.body_params, "tracks", [])
+    album_attrs =
+      conn.body_params
+      |> Map.take(["title", "genre_id", "release_year", "cover_image_url", "description"])
+      |> Map.put("artist_id", artist_id)
+
+    # Sanitize incoming track attributes to only the fields accepted by Track.changeset/2
+    tracks_attrs =
+      conn.body_params
+      |> Map.get("tracks", [])
+      |> Enum.map(fn t ->
+        Map.take(t, [
+          "title",
+          "track_number",
+          "alt_track_number",
+          "duration_seconds",
+          "sample_duration",
+          "upload_status"
+        ])
+      end)
 
     case Catalog.create_album_with_tracks(album_attrs, tracks_attrs) do
       {:ok, album} ->
@@ -338,6 +349,8 @@ defmodule ElixirRadio.StreamingServer do
                 id: track.id,
                 title: track.title,
                 track_number: track.track_number,
+                alt_track_number: track.alt_track_number,
+                duration_seconds: track.duration_seconds,
                 upload_url: "/admin/tracks/#{track.id}/upload"
               }
             end)

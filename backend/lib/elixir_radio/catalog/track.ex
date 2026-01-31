@@ -7,7 +7,6 @@ defmodule ElixirRadio.Catalog.Track do
              :id,
              :title,
              :album_id,
-             :album,
              :track_number,
              :alt_track_number,
              :duration_seconds,
@@ -43,6 +42,7 @@ defmodule ElixirRadio.Catalog.Track do
       :title,
       :album_id,
       :track_number,
+      :alt_track_number,
       :duration_seconds,
       :sample_duration,
       :upload_status
