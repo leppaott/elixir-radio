@@ -274,6 +274,16 @@ defmodule ElixirRadio.StreamingServer do
 
   # === Admin Endpoints ===
 
+  post "/admin/artists" do
+    case Catalog.create_artist(conn.body_params) do
+      {:ok, artist} ->
+        send_json(conn, 201, %{artist_id: artist.id})
+
+      {:error, changeset} ->
+        send_json(conn, 400, %{errors: format_errors(changeset)})
+    end
+  end
+
   post "/admin/albums" do
     album_attrs =
       Map.take(conn.body_params, [

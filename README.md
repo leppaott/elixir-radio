@@ -34,22 +34,27 @@ docker compose exec app mix run priv/repo/seeds.exs
 ## API Endpoints
 
 ### Genres
+
 - `GET /api/genres` - List all genres
 - `GET /api/genres/:id/albums?page=1&per_page=20` - Albums by genre (paginated)
 
 ### Albums & Artists
+
 - `GET /api/albums/:id` - Get album with tracks
 - `GET /api/artists/:id/albums?page=1&per_page=20` - Albums by artist (paginated)
 
 ### Tracks
+
 - `GET /api/tracks/:id` - Get track details
 
 ### Streaming (Internet Radio Style)
+
 - `GET /streams/:genre?page=1&per_page=50` - Get streamable tracks by genre
 - `GET /streams/tracks/:track_id/playlist.m3u8` - HLS playlist
 - `GET /streams/tracks/:track_id/segments/:number.ts` - HLS segment
 
 ### Admin
+
 - `POST /admin/albums` - Create album with tracks (metadata only)
 - `GET /admin/albums/:id/status` - Check album upload progress
 - `POST /admin/tracks` - Create track
