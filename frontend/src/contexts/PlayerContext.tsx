@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useRef, useState } from "react";
+import { getTracksUrl } from "@/lib/api";
 import type { Track } from "@/types/api";
 
 interface PlayerContextType {
@@ -25,10 +26,15 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     // If track doesn't have stream_url, fetch full track details
     if (!track.stream_url && track.upload_status === "ready") {
       try {
-        const response = await fetch(`/api/tracks/${track.id}`);
+        const response = await fetch(getTracksUrl(track.id));
         const fullTrack = await response.json();
         if (fullTrack.stream_url) {
-          setCurrentTrack(fullTrack);
+          // Preserve the album.tracks array from the original track object
+          setCurrentTrack({
+            ...fullTrack,
+            album: track.album,
+            artist: track.artist,
+          });
           setIsPlaying(true);
           return;
         }
@@ -61,24 +67,42 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const next = () => {
     if (!currentTrack?.album?.tracks) return;
-    const tracks = currentTrack.album.tracks;
+
+    const tracks = currentTrack.album.tracks.sort(
+      (a, b) => a.track_number - b.track_number,
+    );
     const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
-    if (currentIndex < tracks.length - 1) {
-      const nextTrack = tracks[currentIndex + 1];
-      if (nextTrack.upload_status === "ready") {
-        play(nextTrack);
+
+    // Find next ready track
+    for (let i = currentIndex + 1; i < tracks.length; i++) {
+      if (tracks[i].upload_status === "ready") {
+        play({
+          ...tracks[i],
+          album: currentTrack.album,
+          artist: currentTrack.artist,
+        });
+        return;
       }
     }
   };
 
   const prev = () => {
     if (!currentTrack?.album?.tracks) return;
-    const tracks = currentTrack.album.tracks;
+
+    const tracks = currentTrack.album.tracks.sort(
+      (a, b) => a.track_number - b.track_number,
+    );
     const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
-    if (currentIndex > 0) {
-      const prevTrack = tracks[currentIndex - 1];
-      if (prevTrack.upload_status === "ready") {
-        play(prevTrack);
+
+    // Find previous ready track
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      if (tracks[i].upload_status === "ready") {
+        play({
+          ...tracks[i],
+          album: currentTrack.album,
+          artist: currentTrack.artist,
+        });
+        return;
       }
     }
   };

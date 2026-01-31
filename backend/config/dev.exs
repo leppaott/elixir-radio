@@ -7,4 +7,9 @@ config :elixir_radio, ElixirRadio.Repo,
 # Lettuce hot-reload configuration
 config :lettuce,
   paths: ["lib/"],
-  reload_on_save: true
+  reload_on_save: true,
+  on_reload: fn ->
+    # Clear Cachex cache on hot-reload
+    Cachex.clear(:segment_cache)
+    IO.puts("Cachex cache cleared after reload")
+  end

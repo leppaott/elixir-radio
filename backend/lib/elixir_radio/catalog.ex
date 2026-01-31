@@ -274,7 +274,10 @@ defmodule ElixirRadio.Catalog do
     # Apply cursor filter if after_id is provided (always filter by ID)
     query =
       if after_id do
-        where(query, [r], r.id > ^after_id)
+        case sort_order do
+          :asc -> where(query, [r], r.id > ^after_id)
+          :desc -> where(query, [r], r.id < ^after_id)
+        end
       else
         query
       end

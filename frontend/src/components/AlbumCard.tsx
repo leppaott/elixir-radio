@@ -29,7 +29,10 @@ export function AlbumCard({ album }: AlbumCardProps) {
       // Ensure track has album and artist data for the player
       const trackWithFullData = {
         ...track,
-        album: album,
+        album: {
+          ...album,
+          tracks: album.tracks,
+        },
         artist: album.artist,
       };
       play(trackWithFullData);
@@ -88,73 +91,95 @@ export function AlbumCard({ album }: AlbumCardProps) {
           disablePadding
           sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
         >
-          {album.tracks?.map((track) => {
-            const isCurrentTrack = currentTrack?.id === track.id;
-            const isCurrentlyPlaying = isCurrentTrack && isPlaying;
-            const isReady = track.upload_status === "ready";
+          {album.tracks
+            ?.sort((a, b) => a.track_number - b.track_number)
+            .map((track) => {
+              const isCurrentTrack = currentTrack?.id === track.id;
+              const isCurrentlyPlaying = isCurrentTrack && isPlaying;
+              const isReady = track.upload_status === "ready";
 
-            return (
-              <ListItemButton
-                key={track.id}
-                onClick={() => isReady && handleTrackClick(track)}
-                disabled={!isReady}
-                selected={isCurrentTrack}
-                sx={{
-                  borderRadius: 1,
-                  gap: 1,
-                  opacity: isReady ? 1 : 0.5,
-                }}
-              >
-                <Box
+              return (
+                <ListItemButton
+                  key={track.id}
+                  onClick={() => isReady && handleTrackClick(track)}
+                  disabled={!isReady}
+                  selected={isCurrentTrack}
                   sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    bgcolor: "action.hover",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    borderRadius: 1,
+                    gap: 0.5,
+                    opacity: isReady ? 1 : 0.5,
                   }}
                 >
-                  {isReady ? (
-                    isCurrentlyPlaying ? (
-                      <Pause sx={{ fontSize: 12 }} />
-                    ) : (
-                      <PlayArrow sx={{ fontSize: 12 }} />
-                    )
-                  ) : (
-                    <Typography variant="caption">
-                      {track.alt_track_number || track.track_number}
-                    </Typography>
-                  )}
-                </Box>
-                <Typography
-                  variant="body2"
-                  fontWeight={isCurrentTrack ? "600" : "400"}
-                  color={isCurrentTrack ? "primary" : "text.primary"}
-                  sx={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}
-                  noWrap
-                >
-                  {track.title}
-                </Typography>
-                {track.duration_seconds && (
-                  <Typography variant="caption" color="text.secondary">
-                    {Math.floor(track.duration_seconds / 60)}:
-                    {String(track.duration_seconds % 60).padStart(2, "0")}
-                  </Typography>
-                )}
-                {!isReady && (
+                  <Box
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {isReady && (
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: "50%",
+                          bgcolor: isCurrentlyPlaying
+                            ? "primary.main"
+                            : "action.hover",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {isCurrentlyPlaying ? (
+                          <Pause sx={{ fontSize: 12, color: "white" }} />
+                        ) : (
+                          <PlayArrow sx={{ fontSize: 12 }} />
+                        )}
+                      </Box>
+                    )}
+                  </Box>
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    sx={{ textTransform: "capitalize" }}
+                    sx={{
+                      minWidth: 28,
+                      flexShrink: 0,
+                    }}
                   >
-                    {track.upload_status}
+                    {track.alt_track_number || track.track_number}
                   </Typography>
-                )}
-              </ListItemButton>
-            );
-          })}
+                  <Typography
+                    variant="body2"
+                    fontWeight={isCurrentTrack ? "600" : "400"}
+                    color={isCurrentTrack ? "primary" : "text.primary"}
+                    sx={{
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                    noWrap
+                  >
+                    {track.title}
+                  </Typography>
+                  {track.duration_seconds && (
+                    <Typography variant="caption" color="text.secondary">
+                      {Math.floor(track.duration_seconds / 60)}:
+                      {String(track.duration_seconds % 60).padStart(2, "0")}
+                    </Typography>
+                  )}
+                  {!isReady && (
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ textTransform: "capitalize" }}
+                    >
+                      {track.upload_status}
+                    </Typography>
+                  )}
+                </ListItemButton>
+              );
+            })}
         </List>
       </Box>
     </Card>
